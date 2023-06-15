@@ -1,0 +1,4 @@
+stanscofi>=1.0.1
+numpy>=1.19.4
+tensorflow>=2.8.0
+protobuf==3.20.*

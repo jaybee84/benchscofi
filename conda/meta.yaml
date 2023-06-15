@@ -1,0 +1,38 @@
+{% set name = "benchscofi" %}
+{% set version = "9999" %}
+
+package:
+  name: "{{ name|lower }}"
+  version: "{{ version }}"
+
+source:
+  url: "../dist/{{ name }}-{{ version }}.tar.gz"
+
+build:
+  script: python -m pip install --no-deps --ignore-installed .
+  noarch: python
+
+requirements:
+  host:
+    - pip
+    - python
+
+  run:
+    - stanscofi >=1.0.1
+    - numpy >=1.19.4
+    - tensorflow >=2.8.0
+    - protobuf==3.20.*
+
+test:
+  imports:
+    - benchscofi
+
+about:
+  home: https://github.com/RECeSS-EU-Project/benchscofi
+  license: MIT
+  license-file: LICENSE
+  summary: "Package which contains collaborative filtering-based algorithms for drug repurposing."
+
+extra:
+  recipe-maintainers:
+    - RECeSS-EU-Project

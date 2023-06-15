@@ -1,0 +1,33 @@
+name: benchscofi post-pushing testing
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10"]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }} using Miniconda
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies and build benchscofi
+        run: |
+          pip install --upgrade pip
+          python -m pip install -r pip/requirements.txt
+          python -m pip install .
+      - name: Test import benchscofi
+        run: |
+          python -c "import benchscofi; from glob import glob; model_folder='../../src/benchscofi/'; model_lst=[x.split(model_folder)[-1].split('.py')[0] for x in glob(model_folder+'*.py') if (x!=model_folder+'__init__.py')]; map(__import__, model_lst); print('benchscofi has been successfully installed and all models are importable in Python.')"
+      - name: Test all implemented models
+        working-directory: ./tests/
+        run: |
+          python -m test_models

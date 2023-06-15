@@ -1,0 +1,32 @@
+from setuptools import setup, find_packages
+
+NAME = "benchscofi"
+VERSION = "9999"
+
+setup(name=NAME,
+    version=VERSION,
+    author="Clémence Réda",
+    author_email="recess-project@proton.me",
+    url="https://github.com/RECeSS-EU-Project/benchscofi",
+    license_files = ('LICENSE'),
+    classifiers=[
+        "Intended Audience :: Science/Research",
+        "Topic :: Scientific/Engineering",
+        "Topic :: Scientific/Engineering :: Artificial Intelligence",
+        "License :: OSI Approved :: MIT License",
+    ],
+    keywords='',
+    description="Package which contains implementations of published collaborative filtering-based algorithms for drug repurposing.",
+    long_description=open('README.md').read(),
+    long_description_content_type="text/markdown",
+    packages=find_packages(where="src"),
+    package_dir={'':"src"},
+    python_requires='>=3.8.5',
+    install_requires=[
+        "stanscofi>=1.0.1",
+        "numpy>=1.19.4",
+        "tensorflow>=2.8.0",
+        "protobuf==3.20.*",
+    ],
+    entry_points={},
+)
