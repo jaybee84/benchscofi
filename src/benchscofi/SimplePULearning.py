@@ -25,8 +25,8 @@ class SimplePULearning(SimpleNeuralNetwork):
         return params
 
     def _custom_cross_entropy(self, log_ratio_p, labels):
-        temp = tf.math.softplus(log_ratio_p)
-        weights = tf.constant([-1 / (self.PI - 1), (2 * self.PI - 1) / (self.PI - 1)])
+        temp = tf.cast(tf.math.softplus(log_ratio_p), np.float32)
+        weights = tf.cast(tf.constant([-1 / (self.PI - 1), (2 * self.PI - 1) / (self.PI - 1)]), np.float32)
         coef = tf.constant([0., 1.])
         bundle = temp[..., None] * weights[None, ...] - log_ratio_p[..., None] * coef[None, ...]
         oh = tf.one_hot(labels, depth=2)
