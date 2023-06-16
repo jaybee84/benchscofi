@@ -9,11 +9,11 @@ import tensorflow as tf
 from tensorflow.python.keras.models import Sequential, Model
 from tensorflow.python.keras.layers import Dense, Input
 
-class SimpleBinaryClassifier(BasicModel):
+class SimpleNeuralNetwork(BasicModel):
     def __init__(self, params=None):
         params = params if (params is not None) else self.default_parameters()
-        super(SimpleBinaryClassifier, self).__init__(params)
-        self.name = "SimpleBinaryClassifier"
+        super(SimpleNeuralNetwork, self).__init__(params)
+        self.name = "SimpleNeuralNetwork"
         self.scalerP, self.scalerS = None, None
         for p in params:
             setattr(self, p, params[p])
@@ -50,13 +50,6 @@ class SimpleBinaryClassifier(BasicModel):
         self.scalerS = scalerS
         self.scalerP = scalerP
         return X, y
-
-    def _binary_crossentropy(self, log_ratio_p, log_ratio_q):
-        loss_q, loss_p = [
-            tf.nn.sigmoid_cross_entropy_with_logits(logits=x,labels=tf.ones_like(x) if (ix>0) else tf.zeros_like(x))
-            for ix, x in enumerate([log_ratio_q, log_ratio_p])
-        ]
-        return tf.reduce_mean(loss_p + loss_q)
         
     def fit(self, train_dataset):
         X, y = self.preprocessing(train_dataset)
@@ -69,9 +62,42 @@ class SimpleBinaryClassifier(BasicModel):
         x_q = Input(shape=(X.shape[1],))
         log_ratio_p = log_ratio(x_p)
         log_ratio_q = log_ratio(x_p)
-        self.model = Model(inputs=[x_p, x_q], outputs=[log_ratio_p, log_ratio_q])
-        self.model.add_loss(self._binary_crossentropy(log_ratio_p, log_ratio_q))
-        self.model.compile(optimizer='rmsprop', loss=None, metrics=['accuracy'])
+        self.model, XX, YY = self.nn_creation(x_p, x_q, log_ratio_p, log_ratio_q, X, y)
+        hist = self.model.fit(x=XX, y=YY, steps_per_epoch=self.steps_per_epoch, epochs=self.epochs, verbose=0)
+
+    def model_predict(self, test_dataset):
+        X, y = self.preprocessing(test_dataset)
+        pred = self.nn_prediction(X, y)
+        ids = np.argwhere(np.ones(test_dataset.ratings_mat.shape))
+        predicted_ratings = np.zeros((X.shape[0], 3))
+        predicted_ratings[:,0] = ids[:X.shape[0],0] 
+        predicted_ratings[:,1] = ids[:X.shape[0],1] 
+        predicted_ratings[:,2] = pred
+        return predicted_ratings
+
+    def nn_creation(self, x_p, x_q, log_ratio_p, log_ratio_q, X, y):
+        raise NotImplemented
+
+    def nn_prediction(self, X, y):
+        raise NotImplemented
+
+class SimpleBinaryClassifier(SimpleNeuralNetwork):
+    def __init__(self, params=None):
+        params = params if (params is not None) else self.default_parameters()
+        super(SimpleBinaryClassifier, self).__init__(params)
+        self.name = "SimpleBinaryClassifier"
+
+    def _binary_crossentropy(self, log_ratio_p, log_ratio_q):
+        loss_q, loss_p = [
+            tf.nn.sigmoid_cross_entropy_with_logits(logits=x,labels=tf.ones_like(x) if (ix>0) else tf.zeros_like(x))
+            for ix, x in enumerate([log_ratio_q, log_ratio_p])
+        ]
+        return tf.reduce_mean(loss_p + loss_q)
+
+    def nn_creation(self, x_p, x_q, log_ratio_p, log_ratio_q, X, y):
+        model = Model(inputs=[x_p, x_q], outputs=[log_ratio_p, log_ratio_q])
+        model.add_loss(self._binary_crossentropy(log_ratio_p, log_ratio_q))
+        model.compile(optimizer='rmsprop', loss=None, metrics=['accuracy'])
         XX = [X[y==v,:] for v in [1,-1]]
         YY = [tf.ones(np.sum(y==1)), tf.zeros(np.sum(y==-1))]
         if (XX[0].shape[0]>XX[1].shape[0]):
@@ -82,15 +108,9 @@ class SimpleBinaryClassifier(BasicModel):
             n = XX[1].shape[0]-XX[0].shape[0]
             XX[0] = np.concatenate(( XX[0], np.tile(XX[0][0,:],(n, 1)) ), axis=0)
             YY[0] = tf.ones(np.sum(y==1)+n)
-        hist = self.model.fit(x=XX, y=YY, steps_per_epoch=self.steps_per_epoch, epochs=self.epochs, verbose=0)
+        return model, XX, YY
 
-    def model_predict(self, test_dataset):
-        X, y = self.preprocessing(test_dataset)
+    def nn_prediction(self, X, y):
         p_pred, q_pred = self.model.predict(x=[X,X])
         preds = np.concatenate((tf.nn.sigmoid(p_pred).numpy(), tf.nn.sigmoid(q_pred).numpy()), axis=1)
-        ids = np.argwhere(np.ones(test_dataset.ratings_mat.shape))
-        predicted_ratings = np.zeros((X.shape[0], 3))
-        predicted_ratings[:,0] = ids[:X.shape[0],1] 
-        predicted_ratings[:,1] = ids[:X.shape[0],0] 
-        predicted_ratings[:,2] = preds.max(axis=1)
-        return predicted_ratings
+        return preds.max(axis=1)
