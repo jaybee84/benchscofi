@@ -70,8 +70,8 @@ class SimpleNeuralNetwork(BasicModel):
         pred = self.nn_prediction(X, y)
         ids = np.argwhere(np.ones(test_dataset.ratings_mat.shape))
         predicted_ratings = np.zeros((X.shape[0], 3))
-        predicted_ratings[:,0] = ids[:X.shape[0],0] 
-        predicted_ratings[:,1] = ids[:X.shape[0],1] 
+        predicted_ratings[:,0] = ids[:X.shape[0],1] 
+        predicted_ratings[:,1] = ids[:X.shape[0],0] 
         predicted_ratings[:,2] = pred
         return predicted_ratings
 
@@ -98,12 +98,12 @@ class SimpleBinaryClassifier(SimpleNeuralNetwork):
         model = Model(inputs=[x_p, x_q], outputs=[log_ratio_p, log_ratio_q])
         model.add_loss(self._binary_crossentropy(log_ratio_p, log_ratio_q))
         model.compile(optimizer='rmsprop', loss=None, metrics=['accuracy'])
-        XX = [X[y==v,:] for v in [1,-1]]
-        YY = [tf.ones(np.sum(y==1)), tf.zeros(np.sum(y==-1))]
+        XX = [X[y==1,:], X[y<1]]
+        YY = [tf.ones(np.sum(y==1)), tf.zeros(np.sum(y<1))]
         if (XX[0].shape[0]>XX[1].shape[0]):
             n = XX[0].shape[0]-XX[1].shape[0]
             XX[1] = np.concatenate(( XX[1], np.tile(XX[1][0,:],(n, 1)) ), axis=0)
-            YY[1] = tf.zeros(np.sum(y==-1)+n)
+            YY[1] = tf.zeros(np.sum(y<1)+n)
         elif (XX[0].shape[0]<XX[1].shape[0]):
             n = XX[1].shape[0]-XX[0].shape[0]
             XX[0] = np.concatenate(( XX[0], np.tile(XX[0][0,:],(n, 1)) ), axis=0)
@@ -111,6 +111,7 @@ class SimpleBinaryClassifier(SimpleNeuralNetwork):
         return model, XX, YY
 
     def nn_prediction(self, X, y):
-        p_pred, q_pred = self.model.predict(x=[X,X])
+        p_pred, q_pred = self.model.predict(x=[X, X])
         preds = np.concatenate((tf.nn.sigmoid(p_pred).numpy(), tf.nn.sigmoid(q_pred).numpy()), axis=1)
         return preds.max(axis=1)
+        

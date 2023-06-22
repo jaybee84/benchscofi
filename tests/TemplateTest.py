@@ -6,7 +6,6 @@ import stanscofi.datasets
 import stanscofi.training_testing
 import stanscofi.validation
 
-sys.path.insert(0, "../src/")
 import benchscofi
 import benchscofi.XXXXXX
 

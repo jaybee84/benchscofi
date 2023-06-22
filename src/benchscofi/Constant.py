@@ -100,7 +100,7 @@ class Constant(BasicModel):
         '''
         ids = np.argwhere(np.ones(test_dataset.ratings_mat.shape))
         scores = np.zeros((ids.shape[0], 3))
-        scores[:,0] = ids[:,0] 
-        scores[:,1] = ids[:,1] 
+        scores[:,0] = ids[:,1] 
+        scores[:,1] = ids[:,0] 
         scores[:,2] = self.decision_threshold
         return scores
