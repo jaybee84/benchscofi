@@ -1,11 +1,14 @@
 import unittest
 import numpy as np
+import random
 import sys
 
 import stanscofi.datasets
 import stanscofi.training_testing
 import stanscofi.validation
 
+import sys ##
+sys.path.insert(0, "../src/") ##
 import benchscofi
 import benchscofi.XXXXXX
 
@@ -22,6 +25,7 @@ class TestModel(unittest.TestCase):
     def test_model(self): 
         random_seed = 124565 
         np.random.seed(random_seed)
+        random.seed(random_seed)
         dataset = self.generate_dataset(random_seed)
         test_size = 0.3
         train_set, test_set, _, _ = stanscofi.training_testing.traintest_validation_split(dataset, test_size, early_stop=2, metric="euclidean", disjoint_users=False, random_state=random_seed, verbose=False, print_dists=False)

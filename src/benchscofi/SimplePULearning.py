@@ -1,10 +1,7 @@
 #coding: utf-8
 
 from stanscofi.models import BasicModel
-import stanscofi.preprocessing
 
-import sys
-sys.path.insert(0,"../")
 from benchscofi.SimpleBinaryClassifier import SimpleNeuralNetwork
 
 import numpy as np

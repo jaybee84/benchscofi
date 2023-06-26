@@ -21,11 +21,14 @@ requirements:
     - stanscofi >=1.0.1
     - numpy >=1.19.4
     - tensorflow >=2.8.0
-    - protobuf==3.20.*
+    - protobuf ==3.20.*
+    - pulearn >=0.0.7
+    - rpy2 >=3.5.13
 
 test:
   imports:
     - benchscofi
+    - benchscofi.utils
 
 about:
   home: https://github.com/RECeSS-EU-Project/benchscofi

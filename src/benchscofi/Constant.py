@@ -3,7 +3,7 @@
 ## Minimal example of model in stanscofi
 
 from stanscofi.models import BasicModel
-import numpy as np
+from benchscofi.utils import tools
 
 class Constant(BasicModel):
     '''
@@ -53,7 +53,7 @@ class Constant(BasicModel):
         self.name = "Constant"
 
     def default_parameters(self):
-        params = {"decision_threshold": 1}
+        params = {"decision_threshold": 1, "random_state": 124565}
         return params
 
     def preprocessing(self, dataset):
@@ -98,9 +98,5 @@ class Constant(BasicModel):
         test_dataset : stanscofi.Dataset
             testing dataset on which the model should be validated
         '''
-        ids = np.argwhere(np.ones(test_dataset.ratings_mat.shape))
-        scores = np.zeros((ids.shape[0], 3))
-        scores[:,0] = ids[:,1] 
-        scores[:,1] = ids[:,0] 
-        scores[:,2] = self.decision_threshold
+        scores = tools.create_scores(self.decision_threshold, test_dataset)
         return scores

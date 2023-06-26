@@ -27,6 +27,8 @@ setup(name=NAME,
         "numpy>=1.19.4",
         "tensorflow>=2.8.0",
         "protobuf==3.20.*",
+        "pulearn>=0.0.7",
+        "rpy2>=3.5.13",
     ],
     entry_points={},
 )
