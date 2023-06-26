@@ -41,7 +41,5 @@ train.res <- lrssl(X_lst, L_lst, Y, length(X_lst), length(L_lst), mu, lam, gam, 
 
 Y.pred <- lapply(1:mx, function(i) X_lst[[i]]%*%train.res$Gs[[i]])
 Y.pred <- lapply(Y.pred, function(Y) Y/rowSums(Y))
-Y.pred <- Y.pred/rowSums(Y.pred)
-alpha <- train.res$alpha
 Y.pred <- lapply(1:mx, function(i) train.res$alpha[i]*Y.pred[[i]])
-apply(Y.pred,1,sum,na.rm = TRUE)
+#apply(cbind(unlist(Y.pred)),1,sum,na.rm = TRUE) Y.pred[[1]]
