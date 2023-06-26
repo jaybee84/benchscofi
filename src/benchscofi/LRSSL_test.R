@@ -33,7 +33,9 @@ L_lst <- lapply(S_knn_lst, function(Sknn) diag(colSums(Sknn))-Sknn)
 mu <- 0.01
 lam <- 0.01
 gam <- 2
-train.res <- lrssl(X_lst, L_lst, Y, length(X_lst), length(L_lst), mu, lam, gam, 8000, 1e-6)
+tol <- 1e-2
+maxiter <- 1000
+train.res <- lrssl(X_lst, L_lst, Y, length(X_lst), length(L_lst), mu, lam, gam, maxiter, tol)
 
 ## PREDICTING
 
