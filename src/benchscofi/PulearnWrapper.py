@@ -15,7 +15,7 @@ class PulearnWrapper(BasicModel):
         self.classifier = params["classifier"]
         self.random_state = params["random_state"]
         self.classifier_params = params["classifier_params"]
-        self.subset = params["subset"]
+        self.subset = params.get("subset")
         self.preprocessing_str = params["preprocessing"] 
         super(PulearnWrapper, self).__init__(params)
         self.scalerS, self.scalerP, self.filter = None, None, None

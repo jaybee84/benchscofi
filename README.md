@@ -4,6 +4,10 @@
 
 This repository is a part of the EU-funded [RECeSS project](https://recess-eu-project.github.io) (#101102016), and hosts the implementations and / or wrappers to published implementations of collaborative filtering-based algorithms for easy benchmarking.
 
+## Install R and MATLAB
+
+Or ignore method "LRSSL", ...
+
 ## Install the latest release
 
 Install [CUDA](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html)

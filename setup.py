@@ -23,12 +23,11 @@ setup(name=NAME,
     package_dir={'':"src"},
     python_requires='>=3.8.5',
     install_requires=[
-        "stanscofi>=1.0.1",
+        "stanscofi>=1.1",
         "numpy>=1.19.4",
         "tensorflow>=2.8.0",
         "protobuf==3.20.*",
         "pulearn>=0.0.7",
-        "rpy2>=3.5.13",
     ],
     entry_points={},
 )
