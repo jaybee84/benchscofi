@@ -29,8 +29,12 @@ class TestModel(unittest.TestCase):
         dataset = self.generate_dataset(random_seed)
         test_size = 0.3
         train_set, test_set, _, _ = stanscofi.training_testing.traintest_validation_split(dataset, test_size, early_stop=2, metric="euclidean", disjoint_users=False, random_state=random_seed, verbose=False, print_dists=False)
-        train_dataset = dataset.get_folds(train_set)
-        test_dataset = dataset.get_folds(test_set)
+        if ("XXXXXX" in ["LRSSL", "PMF"]):
+            train_dataset = dataset.mask_dataset(train_set)
+            test_dataset = dataset.mask_dataset(test_set)
+        else:
+            train_dataset = dataset.get_folds(train_set)
+            test_dataset = dataset.get_folds(test_set)
         model = benchscofi.XXXXXX.XXXXXX()
         model.fit(train_dataset)
         scores = model.predict(test_dataset)

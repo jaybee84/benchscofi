@@ -1,7 +1,7 @@
 #coding: utf-8
 
-from stanscofi.models import BasicModel
-from benchscofi.utils import tools
+from stanscofi.models import BasicModel, create_scores
+from stanscofi.preprocessing import preprocessing_routine
 
 import numpy as np
 import os
@@ -31,7 +31,7 @@ class SimpleNeuralNetwork(BasicModel):
         return params
 
     def preprocessing(self, dataset):
-        X, y, scalerS, scalerP, filter_ = tools.preprocessing_routine(dataset, self.preprocessing_str, subset_=self.subset, filter_=self.filter, scalerS=self.scalerS, scalerP=self.scalerP, inf=2, njobs=1)
+        X, y, scalerS, scalerP, filter_ = preprocessing_routine(dataset, self.preprocessing_str, subset_=self.subset, filter_=self.filter, scalerS=self.scalerS, scalerP=self.scalerP, inf=2, njobs=1)
         self.filter = filter_
         self.scalerS = scalerS
         self.scalerP = scalerP
@@ -62,7 +62,7 @@ class SimpleNeuralNetwork(BasicModel):
     def model_predict(self, test_dataset):
         X, y = self.preprocessing(test_dataset)
         preds = self.nn_prediction(X, y)
-        predicted_ratings = tools.create_scores(preds, test_dataset)
+        predicted_ratings = create_scores(preds, test_dataset)
         return predicted_ratings
 
     def nn_creation(self, x_p, x_q, log_ratio_p, log_ratio_q, X, y):

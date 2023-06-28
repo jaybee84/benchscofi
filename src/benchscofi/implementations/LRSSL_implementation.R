@@ -1,6 +1,6 @@
 #!/bin/R
 
-## https://github.com/LiangXujun/LRSSL/LRSSL.R
+## https://raw.githubusercontent.com/LiangXujun/LRSSL/a16a75c028393e7256e3630bc8b7900026061f99/LRSSL.R
 get.knn <- function(v, k){
   ind <- order(v, decreasing = T)
   return(ind[1:k])
@@ -99,3 +99,51 @@ lrssl <- function(Xs, Ls, Y, mx, ml, mu, lam, gam, max.iter, eps){
   }
   return(list(Gs = Gs, F.mat = F.mat, alpha = alpha, diff.G = diff.G, t = t))
 }
+
+## Test
+
+k <- 10
+mu <- 0.01
+lam <- 0.01
+gam <- 2
+tol <- 1e-2
+maxiter <- 1000
+
+## TRAIN
+
+Xs <- as.matrix(read.table("../../Xs_df.csv", sep = " ", header = F))
+Xp <- as.matrix(read.table("../../Xp_df.csv", sep = " ", header = F))
+Y <- as.matrix(read.table("../../Y_df.csv", sep = " ", header = F))
+
+X_lst <- list(Xs)
+
+S_lst <- lapply(X_lst, function(X) t(X)%*%X/sqrt(colSums(X)%*%t(colSums(X))))
+S_lst <- lapply(S_lst, function(S) S - diag(diag(S)))
+
+ST <- matrix(0, nrow = nrow(Y), ncol = nrow(Y))
+for(i in 1:(nrow(Y)-1)){
+  for(j in (i+1):nrow(Y)){
+    s <- Xp[Y[i,]==1,Y[j,]==1]
+    ST[i,j] <- max(s)
+  }
+}
+ST <- ST + t(ST)
+S_lst[[length(S_lst)+1]] <- ST
+
+S_knn_lst <- lapply(S_lst, function(S) get.knn.graph(S, k))
+L_lst <- lapply(S_knn_lst, function(Sknn) diag(colSums(Sknn))-Sknn)
+
+train.res <- lrssl(X_lst, L_lst, Y, length(X_lst), length(L_lst), mu, lam, gam, maxiter, tol)
+
+## PREDICT
+
+Xs <- as.matrix(read.table("../../Xs_df.csv", sep = " ", header = F))
+Xp <- as.matrix(read.table("../../Xp_df.csv", sep = " ", header = F))
+Y <- as.matrix(read.table("../../Y_df.csv", sep = " ", header = F))
+
+X_lst <- list(Xs)
+
+Y.pred_lst <- lapply(1:length(X_lst), function(i) X_lst[[i]]%*%train.res$Gs[[i]])
+Y.pred_lst <- lapply(Y.pred_lst, function(Y) Y/rowSums(Y))
+Y.pred_lst <- lapply(1:length(X_lst), function(i) train.res$alpha[i]*Y.pred_lst[[i]])
+Y.pred <- Reduce("+", Y.pred_lst)

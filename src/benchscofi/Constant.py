@@ -2,8 +2,7 @@
 
 ## Minimal example of model in stanscofi
 
-from stanscofi.models import BasicModel
-from benchscofi.utils import tools
+from stanscofi.models import BasicModel, create_scores
 
 class Constant(BasicModel):
     '''
@@ -98,5 +97,5 @@ class Constant(BasicModel):
         test_dataset : stanscofi.Dataset
             testing dataset on which the model should be validated
         '''
-        scores = tools.create_scores(self.decision_threshold, test_dataset)
+        scores = create_scores(self.decision_threshold, test_dataset)
         return scores

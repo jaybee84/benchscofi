@@ -24,10 +24,10 @@ setup(name=NAME,
     python_requires='>=3.8.5',
     install_requires=[
         "stanscofi>=1.1",
-        "numpy>=1.19.4",
         "tensorflow>=2.8.0",
         "protobuf==3.20.*",
         "pulearn>=0.0.7",
+        "torch>=2.0.1",
     ],
     entry_points={},
 )

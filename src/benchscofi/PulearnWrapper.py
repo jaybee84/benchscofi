@@ -1,9 +1,8 @@
 #coding: utf-8
 
-from stanscofi.models import BasicModel
+from stanscofi.models import BasicModel, create_scores
+from stanscofi.preprocessing import preprocessing_routine
 import numpy as np
-
-from benchscofi.utils import tools
 
 import pulearn
 
@@ -38,7 +37,7 @@ class PulearnWrapper(BasicModel):
         return params
 
     def preprocessing(self, dataset):
-        X, y, scalerS, scalerP, filter_ = tools.preprocessing_routine(dataset, self.preprocessing_str, subset_=self.subset, filter_=self.filter, scalerS=self.scalerS, scalerP=self.scalerP, inf=2, njobs=1)
+        X, y, scalerS, scalerP, filter_ = preprocessing_routine(dataset, self.preprocessing_str, subset_=self.subset, filter_=self.filter, scalerS=self.scalerS, scalerP=self.scalerP, inf=2, njobs=1)
         self.filter = filter_
         self.scalerS = scalerS
         self.scalerP = scalerP
@@ -53,5 +52,5 @@ class PulearnWrapper(BasicModel):
     def model_predict(self, test_dataset):
         X, _ = self.preprocessing(test_dataset)
         preds = self.model.predict(X)
-        scores = tools.create_scores(preds, test_dataset)
+        scores = create_scores(preds, test_dataset)
         return scores
