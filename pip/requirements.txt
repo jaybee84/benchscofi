@@ -3,3 +3,4 @@ tensorflow>=2.8.0
 protobuf==3.20.*
 pulearn>=0.0.7
 torch>=2.0.1
+fastai>=2.7.12

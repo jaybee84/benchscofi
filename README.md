@@ -8,6 +8,50 @@ This repository is a part of the EU-funded [RECeSS project](https://recess-eu-pr
 
 Or ignore method "LRSSL", ...
 
+### R
+
+### MATLAB
+
+#!/bin/bash
+
+
+#http://bioinformatics.csu.edu.cn/resources/softs/DrugRepositioning/DRRS/index.html
+wget -O MCR_R2012b_glnxa64_installer.zip https://ssd.mathworks.com/supportfiles/MCR_Runtime/R2012b/MCR_R2012b_glnxa64_installer.zip
+
+wget -O DRRS_L http://bioinformatics.csu.edu.cn/resources/softs/DrugRepositioning/DRRS/soft/DRRS_L
+
+# Enter the below commands:
+mv DRRS_L /tmp
+mv MCR_R2012b_glnxa64_installer.zip /tmp
+cd /tmp
+unzip MCR_R2012b_glnxa64_installer.zip -d MCRInstaller
+cd MCRInstaller
+mkdir -p /usr/local/MATLAB/MATLAB_Compiler_Runtime/v80
+chown -R kali /usr/local/MATLAB/
+./install -mode silent -agreeToLicense  yes
+echo "export MCR_HOME=/usr/local/MATLAB/MATLAB_Compiler_Runtime" > profile
+echo "export LD_LIBRARY_PATH=$MCR_HOME/v80/runtime/glnxa64:$MCR_HOME/v80/bin/glnxa64:$MCR_HOME/v80/sys/java/jre/glnxa64/jre/lib/amd64/server:$MCR_HOME/v80/sys/os/glnxa64:$MCR_HOME/v80/sys/java/jre/glnxa64/jre/lib/amd64:$MCR_HOME/v80/sys/java/jre/glnxa64/jre/lib/amd64/native_threads" >> profile
+echo "export XAPPLRESDIR=$MCR_HOME/v80/X11/app-defaults" >> profile
+cat /etc/profile > profile_header
+cat profile_header profile > /etc/profile
+#source /etc/profile
+
+#wget -O /tmp/dataset.zip http://bioinformatics.csu.edu.cn/resources/softs/DrugRepositioning/DRRS/soft/Fdatasets.zip
+#http://bioinformatics.csu.edu.cn/resources/softs/DrugRepositioning/DRRS/soft/Cdatasets.zip
+#http://bioinformatics.csu.edu.cn/resources/softs/DrugRepositioning/DRRS/soft/DNdatasets.zip
+#unzip /tmp/dataset.zip
+
+# the libXmu.so.6 is required before running DRRS_L
+sudo apt-get install -y libxmu-dev
+chmod +x DRRS_L
+source /etc/profile
+./DRRS_L DrugSim.txt DiseaseSim.txt DiDrA.txt #put these files in /tmp
+
+
+### Others (Elliot, FFM, libFM)
+
+bash install_dependencies.sh
+
 ## Install the latest release
 
 Install [CUDA](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html)
@@ -63,6 +107,10 @@ Once installed, to import **benchscofi** into your Python code
 import benchscofi
 ```
 
+## List of algorithms and references
+
+TODO
+
 ## Add a novel implementation / algorithm
 
 Add a new Python file (extension .py) in ``src/benchscofi/`` named ``<model>`` (where ``model`` is the name of the algorithm), which contains a subclass of ``stanscofi.models.BasicModel`` **which has the same name as your Python file**. At least implement methods ``preprocessing``, ``fit``, ``model_predict``, and a default set of parameters (which is used for testing purposes). Please have a look at the placeholder file ``Constant.py`` which implements a classification algorithm which labels all datapoints as positive. 
@@ -87,6 +135,7 @@ It is strongly advised to create a virtual environment using Conda (python>=3.8)
 conda create -n benchscofi_env python=3.8.5 -y
 conda activate benchscofi_env
 python3 -m pip install benchscofi ## or use the conda command above
+#bash install_dependencies.sh
 python3 -m pip install notebook>=6.5.4 markupsafe==2.0.1 ## packages for Jupyter notebook
 conda deactivate
 conda activate benchscofi_env

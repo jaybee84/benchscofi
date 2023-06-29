@@ -19,6 +19,7 @@ class PulearnWrapper(BasicModel):
         super(PulearnWrapper, self).__init__(params)
         self.scalerS, self.scalerP, self.filter = None, None, None
         self.name = self.classifier
+        self.use_masked_dataset = False
 
     def default_parameters(self):
         from sklearn.svm import SVC

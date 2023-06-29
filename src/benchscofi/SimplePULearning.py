@@ -15,6 +15,7 @@ class SimplePULearning(SimpleNeuralNetwork):
         params = params if (params is not None) else self.default_parameters()
         super(SimplePULearning, self).__init__(params)
         self.name = "SimplePULearning"
+        self.use_masked_dataset = False
 
     def default_parameters(self):
         params = super(SimplePULearning, self).default_parameters()

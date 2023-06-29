@@ -28,6 +28,7 @@ setup(name=NAME,
         "protobuf==3.20.*",
         "pulearn>=0.0.7",
         "torch>=2.0.1",
+        "fastai>=2.7.12",
     ],
     entry_points={},
 )

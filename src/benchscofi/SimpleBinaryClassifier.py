@@ -22,6 +22,7 @@ class SimpleNeuralNetwork(BasicModel):
         assert self.preprocessing_str in ["Perlman_procedure", "meanimputation_standardize", "same_feature_preprocessing"]
         self.filter = None
         assert len(self.layers_dims)>0
+        self.use_masked_dataset = False
 
     def default_parameters(self):
         params = {

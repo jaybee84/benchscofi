@@ -20,6 +20,7 @@ class LRSSL(BasicModel):
         self.name = "LRSSL"
         self.model = None
         self.k, self.mu, self.lam, self.gam, self.maxiter, self.tol = [params[p] for p in ["k","mu","lam","gam","maxiter","tol"]]
+        self.use_masked_dataset = True
 
     def default_parameters(self):
         params = {

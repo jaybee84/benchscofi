@@ -50,6 +50,7 @@ class Constant(BasicModel):
         params = params if (params is not None) else self.default_parameters()
         super(Constant, self).__init__(params)
         self.name = "Constant"
+        self.use_masked_dataset = False
 
     def default_parameters(self):
         params = {"decision_threshold": 1, "random_state": 124565}

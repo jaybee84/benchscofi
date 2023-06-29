@@ -13,8 +13,11 @@ class CF(nn.Module):
     """
     Recommender system
     """
-    def __init__(self, embedding_size, output='reg'):
+    def __init__(self, embedding_size, N_VARIATIONAL_SAMPLES, N=1, M=1, output='reg'): #N=nusers, M=nitems
         super().__init__()
+        self.N, self.M = N, M
+        self.embedding_size = embedding_size
+        self.N_VARIATIONAL_SAMPLES = N_VARIATIONAL_SAMPLES
         self.output = output
         self.alpha = nn.Parameter(torch.Tensor([1e9]), requires_grad=True)
         self.global_bias_mean = nn.Parameter(torch.Tensor([0.]), requires_grad=True)
@@ -22,18 +25,18 @@ class CF(nn.Module):
         self.prec_global_bias_prior = nn.Parameter(torch.Tensor([1.]), requires_grad=True)
         self.prec_user_bias_prior = nn.Parameter(torch.Tensor([1.]), requires_grad=True)
         self.prec_item_bias_prior = nn.Parameter(torch.Tensor([1.]), requires_grad=True)
-        self.prec_user_entity_prior = nn.Parameter(torch.ones(EMBEDDING_SIZE), requires_grad=True)
-        self.prec_item_entity_prior = nn.Parameter(torch.ones(EMBEDDING_SIZE), requires_grad=True)
+        self.prec_user_entity_prior = nn.Parameter(torch.ones(self.embedding_size), requires_grad=True)
+        self.prec_item_entity_prior = nn.Parameter(torch.ones(self.embedding_size), requires_grad=True)
         # self.alpha = torch.Tensor([1.])
         nn.init.uniform_(self.alpha)
         
-        # bias_init = torch.cat((torch.randn(N + M, 1), torch.ones(N + M, 1) * (0.02 ** 0.5)), axis=1)
+        # bias_init = torch.cat((torch.randn(self.N + self.M, 1), torch.ones(self.N + self.M, 1) * (0.02 ** 0.5)), axis=1)
         # entity_init = torch.cat((
-        #     torch.randn(N + M, embedding_size),
-        #     torch.ones(N + M, embedding_size) * (0.02 ** 0.5),
+        #     torch.randn(self.N + self.M, self.embedding_size),
+        #     torch.ones(self.N + self.M, self.embedding_size) * (0.02 ** 0.5),
         # ), axis=1)
-        self.bias_params = nn.Embedding(N + M, 2)#.from_pretrained(bias_init)  # w
-        self.entity_params = nn.Embedding(N + M, 2 * embedding_size)#.from_pretrained(entity_init)  # V
+        self.bias_params = nn.Embedding(self.N + self.M, 2)#.from_pretrained(bias_init)  # w
+        self.entity_params = nn.Embedding(self.N + self.M, 2 * self.embedding_size)#.from_pretrained(entity_init)  # V
 
         self.saved_global_biases = []
         self.saved_mean_biases = []
@@ -45,14 +48,14 @@ class CF(nn.Module):
         self.global_bias_prior = distributions.normal.Normal(0, 1)
         self.bias_prior = distributions.normal.Normal(0, 1)
         self.entity_prior = distributions.normal.Normal(0, 1)
-        #     torch.zeros(N + M),
+        #     torch.zeros(self.N + self.M),
         #     torch.nn.functional.softplus(torch.cat((
         #         self.prec_user_bias_prior.repeat(N),
         #         self.prec_item_bias_prior.repeat(M)
         #     )))
         # )
         # self.entity_prior = distributions.normal.Normal(
-        #     torch.zeros(N + M, EMBEDDING_SIZE),
+        #     torch.zeros(self.N + self.M, self.embedding_size),
         #     torch.nn.functional.softplus(torch.cat((
         #         self.prec_user_entity_prior.repeat(N, 1),
         #         self.prec_item_entity_prior.repeat(M, 1)
@@ -62,7 +65,7 @@ class CF(nn.Module):
     def save_weights(self):
         self.saved_global_biases.append(self.global_bias_mean.detach().numpy().copy())
         self.saved_mean_biases.append(self.bias_params.weight[:, 0].detach().numpy().copy())
-        self.saved_mean_entities.append(self.entity_params.weight[:, :EMBEDDING_SIZE].detach().numpy().copy())
+        self.saved_mean_entities.append(self.entity_params.weight[:, :self.embedding_size].detach().numpy().copy())
         self.mean_saved_global_biases = np.array(self.saved_global_biases).mean(axis=0)
         self.mean_saved_mean_biases = np.array(self.saved_mean_biases).mean(axis=0)
         self.mean_saved_mean_entities = np.array(self.saved_mean_entities).mean(axis=0)
@@ -88,7 +91,7 @@ class CF(nn.Module):
         bias_batch = self.bias_params(x)
         entity_batch = self.entity_params(x)
         uniq_bias_batch = self.bias_params(uniq_entities)#.reshape(-1, 2)
-        uniq_entity_batch = self.entity_params(uniq_entities)#.reshape(-1, 2 * EMBEDDING_SIZE)
+        uniq_entity_batch = self.entity_params(uniq_entities)#.reshape(-1, 2 * self.embedding_size)
         # print('first', bias_batch.shape, entity_batch.shape)
         # print('samplers', uniq_bias_batch.shape, uniq_entity_batch.shape)
         # scale_bias = torch.ones_like(scale_bias) * 1e-6
@@ -100,29 +103,29 @@ class CF(nn.Module):
         #     bias_batch[:, :, 0],
         #     LINK(bias_batch[:, :, 1])
         # )
-        # diag_scale_entity = nn.functional.softplus(entity_batch[:, EMBEDDING_SIZE:])
+        # diag_scale_entity = nn.functional.softplus(entity_batch[:, self.embedding_size:])
         # diag_scale_entity = torch.ones_like(diag_scale_entity) * 1e-6
         # print('scale entity', entity_batch.shape, scale_entity.shape)
         entity_sampler = distributions.normal.Normal(
-            loc=uniq_entity_batch[:, :EMBEDDING_SIZE],
-            scale=LINK(uniq_entity_batch[:, EMBEDDING_SIZE:])
+            loc=uniq_entity_batch[:, :self.embedding_size],
+            scale=LINK(uniq_entity_batch[:, self.embedding_size:])
         )
         # entity_posterior = distributions.normal.Normal(
-        #     loc=entity_batch[:, :, :EMBEDDING_SIZE],
-        #     scale=LINK(entity_batch[:, :, EMBEDDING_SIZE:])
+        #     loc=entity_batch[:, :, :self.embedding_size],
+        #     scale=LINK(entity_batch[:, :, self.embedding_size:])
         # )
         # self.entity_prior = distributions.normal.Normal(
-        #     loc=torch.zeros_like(entity_batch[:, :, :EMBEDDING_SIZE]),
-        #     scale=torch.ones_like(entity_batch[:, :, :EMBEDDING_SIZE])
+        #     loc=torch.zeros_like(entity_batch[:, :, :self.embedding_size]),
+        #     scale=torch.ones_like(entity_batch[:, :, :self.embedding_size])
         # )
 
         # print('batch shapes', entity_sampler.batch_shape, self.entity_prior.batch_shape)
         # print('event shapes', entity_sampler.event_shape, self.entity_prior.event_shape)
-        global_bias = global_bias_sampler.rsample((N_VARIATIONAL_SAMPLES,))
-        biases = bias_sampler.rsample((N_VARIATIONAL_SAMPLES,))#.reshape(
-            # N_VARIATIONAL_SAMPLES, -1, 2)
-        entities = entity_sampler.rsample((N_VARIATIONAL_SAMPLES,))#.reshape(
-            # N_VARIATIONAL_SAMPLES, -1, 2, EMBEDDING_SIZE)  # N_VAR_SAMPLES x BATCH_SIZE x 2 (user, item) x EMBEDDING_SIZE
+        global_bias = global_bias_sampler.rsample((self.N_VARIATIONAL_SAMPLES,))
+        biases = bias_sampler.rsample((self.N_VARIATIONAL_SAMPLES,))#.reshape(
+            # self.N_VARIATIONAL_SAMPLES, -1, 2)
+        entities = entity_sampler.rsample((self.N_VARIATIONAL_SAMPLES,))#.reshape(
+            # self.N_VARIATIONAL_SAMPLES, -1, 2, self.embedding_size)  # N_VAR_SAMPLES x BATCH_SIZE x 2 (user, item) x self.embedding_size
         # print('hola', biases.shape, entities.shape)
         sum_users_items_biases = biases[:, entity_pos].sum(axis=2).mean(axis=0).squeeze()
         users_items_emb = entities[:, entity_pos].prod(axis=2).sum(axis=2).mean(axis=0)
@@ -178,9 +181,9 @@ class CF(nn.Module):
         kl_entity = distributions.kl.kl_divergence(entity_sampler, self.entity_prior).sum(axis=1)
         # print('kl entity', kl_entity.shape)
 
-        nb_occ_in_train = nb_occ[uniq_entities]
-        nb_occ_user_in_train = nb_occ[uniq_users]
-        nb_occ_item_in_train = nb_occ[uniq_items]
+        nb_occ_in_train = nb_occ_in_batch[uniq_entities]
+        nb_occ_user_in_train = nb_occ_in_train[uniq_users]
+        nb_occ_item_in_train = nb_occ_in_train[uniq_items]
         # nb_occ_batch = torch.bincount(x.flatten())
         # print('nboccs', nb_occ_in_batch.shape, nb_occ_in_train.shape)
         # nb_occ_batch[x]
@@ -191,12 +194,12 @@ class CF(nn.Module):
 
         # print('begin', ((kl_bias + kl_entity) * (nb_occ_in_batch / nb_occ_in_train)).shape)
         # print('ent', x)
-        # print('ent', x <= N)
-        # print('ent', (x <= N) * N)
+        # print('ent', x <= self.N)
+        # print('ent', (x <= self.N) * self.N)
 
         kl_rescaled = (
             (kl_bias + kl_entity) * (nb_occ_in_batch / nb_occ_in_train) *
-            ((uniq_entities <= N) * N / user_normalizer + (uniq_entities > N) * M / item_normalizer)
+            ((uniq_entities <= self.N) * self.N / user_normalizer + (uniq_entities > self.N) * self.M / item_normalizer)
         ).sum(axis=0)
         # print('rescaled', kl_rescaled.shape)
 
