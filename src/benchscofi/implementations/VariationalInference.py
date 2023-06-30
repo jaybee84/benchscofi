@@ -73,7 +73,9 @@ class CF(nn.Module):
         # print('test', np.array(self.saved_mean_biases)[:3, 0])
 
     def forward(self, x):
+        # print(("x",np.isnan(x.detach().numpy()).any()))
         uniq_entities, entity_pos, nb_occ_in_batch = torch.unique(x, return_inverse=True, return_counts=True)
+        # print(("uniq_entities",np.isnan(uniq_entities.detach().numpy()).any()))
         uniq_users, nb_occ_user_in_batch = torch.unique(x[:, 0], return_counts=True)
         uniq_items, nb_occ_item_in_batch = torch.unique(x[:, 1], return_counts=True)
         # nb_uniq_users = len(uniq_users)
@@ -92,6 +94,8 @@ class CF(nn.Module):
         entity_batch = self.entity_params(x)
         uniq_bias_batch = self.bias_params(uniq_entities)#.reshape(-1, 2)
         uniq_entity_batch = self.entity_params(uniq_entities)#.reshape(-1, 2 * self.embedding_size)
+        uniq_entity_batch = torch.nan_to_num(uniq_entity_batch, nan=1e-6) ###
+        # print(("uniq_entity_batch",np.isnan(uniq_entity_batch.detach().numpy()).any()))
         # print('first', bias_batch.shape, entity_batch.shape)
         # print('samplers', uniq_bias_batch.shape, uniq_entity_batch.shape)
         # scale_bias = torch.ones_like(scale_bias) * 1e-6
@@ -106,6 +110,8 @@ class CF(nn.Module):
         # diag_scale_entity = nn.functional.softplus(entity_batch[:, self.embedding_size:])
         # diag_scale_entity = torch.ones_like(diag_scale_entity) * 1e-6
         # print('scale entity', entity_batch.shape, scale_entity.shape)
+        # print(("uniq_entity_batch2",np.isnan(uniq_entity_batch.detach().numpy()).any()))
+        # print(("LINK uniq_entity_batch",np.isnan(LINK(uniq_entity_batch[:, self.embedding_size:]).detach().numpy()).any()))
         entity_sampler = distributions.normal.Normal(
             loc=uniq_entity_batch[:, :self.embedding_size],
             scale=LINK(uniq_entity_batch[:, self.embedding_size:])
@@ -174,16 +180,21 @@ class CF(nn.Module):
         # )
 
         kl_bias = distributions.kl.kl_divergence(bias_sampler, self.bias_prior)
+        # print(('kl_bias', kl_bias.shape, kl_bias))
         # print('kl bias', kl_bias.shape)
         # print('bias sampler', bias_sampler)
         # print('entity sampler', entity_sampler)
         # print('entity prior', self.entity_prior)
         kl_entity = distributions.kl.kl_divergence(entity_sampler, self.entity_prior).sum(axis=1)
         # print('kl entity', kl_entity.shape)
+        # print(('kl_entity', kl_entity.shape, kl_entity))
 
         nb_occ_in_train = nb_occ_in_batch[uniq_entities]
         nb_occ_user_in_train = nb_occ_in_train[uniq_users]
         nb_occ_item_in_train = nb_occ_in_train[uniq_items]
+        # print(('nb_occ_in_train', nb_occ_in_train))
+        # print(('nb_occ_in_batch', nb_occ_in_batch))
+        # print(('nb_occ_in_train/nb_occ_in_batch', nb_occ_in_train/nb_occ_in_batch))
         # nb_occ_batch = torch.bincount(x.flatten())
         # print('nboccs', nb_occ_in_batch.shape, nb_occ_in_train.shape)
         # nb_occ_batch[x]
@@ -196,12 +207,14 @@ class CF(nn.Module):
         # print('ent', x)
         # print('ent', x <= self.N)
         # print('ent', (x <= self.N) * self.N)
+        # print(('user_normalizer', user_normalizer.shape, user_normalizer.sum()))
+        # print(('item_normalizer', item_normalizer.shape, item_normalizer.sum()))
 
         kl_rescaled = (
             (kl_bias + kl_entity) * (nb_occ_in_batch / nb_occ_in_train) *
             ((uniq_entities <= self.N) * self.N / user_normalizer + (uniq_entities > self.N) * self.M / item_normalizer)
         ).sum(axis=0)
-        # print('rescaled', kl_rescaled.shape)
+        # print(('rescaled', kl_rescaled.shape, kl_rescaled))
 
         return (likelihood,
             last_logits, mean_logits,

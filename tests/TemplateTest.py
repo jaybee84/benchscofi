@@ -26,6 +26,10 @@ class TestModel(unittest.TestCase):
         random_seed = 124565 
         np.random.seed(random_seed)
         random.seed(random_seed)
+        #dataset = stanscofi.datasets.Dataset(**stanscofi.utils.load_dataset("Gottlieb", "../datasets/"))
+        #model = benchscofi.XXXXXX.XXXXXX()
+        #model.fit(dataset)
+        #scores = model.predict(dataset)
         dataset = self.generate_dataset(random_seed)
         test_size = 0.3
         train_set, test_set, _, _ = stanscofi.training_testing.traintest_validation_split(dataset, test_size, early_stop=2, metric="euclidean", disjoint_users=False, random_state=random_seed, verbose=False, print_dists=False)
@@ -43,6 +47,7 @@ class TestModel(unittest.TestCase):
         predictions = model.classify(scores)
         model.print_classification(predictions)
         metrics, _ = stanscofi.validation.compute_metrics(scores, predictions, test_dataset, beta=1, verbose=False)
+        #metrics, _ = stanscofi.validation.compute_metrics(scores, predictions, dataset, beta=1, verbose=False)
         print(metrics)
         print(("_"*27)+"\n\n")
         ## if it ends without any error, it is a success

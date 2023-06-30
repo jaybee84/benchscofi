@@ -4,15 +4,17 @@
 
 This repository is a part of the EU-funded [RECeSS project](https://recess-eu-project.github.io) (#101102016), and hosts the implementations and / or wrappers to published implementations of collaborative filtering-based algorithms for easy benchmarking.
 
-## Install R and MATLAB
+## Install R and MATLAB/Octave
 
 Or ignore method "LRSSL", ...
 
 ### R
 
-### MATLAB
+### MATLAB/Octave
 
 #!/bin/bash
+
+apt-get install -y octave
 
 
 #http://bioinformatics.csu.edu.cn/resources/softs/DrugRepositioning/DRRS/index.html
@@ -136,6 +138,7 @@ conda create -n benchscofi_env python=3.8.5 -y
 conda activate benchscofi_env
 python3 -m pip install benchscofi ## or use the conda command above
 #bash install_dependencies.sh
+python3 -m pip uninstall werkzeug
 python3 -m pip install notebook>=6.5.4 markupsafe==2.0.1 ## packages for Jupyter notebook
 conda deactivate
 conda activate benchscofi_env

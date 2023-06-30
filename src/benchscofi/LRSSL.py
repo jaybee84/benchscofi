@@ -13,6 +13,7 @@ current_GMT = time.gmtime()
 
 class LRSSL(BasicModel):
     def __init__(self, params=None):
+        call("R -q -e \"print('R is installed and running.')\"", shell=True)
         params = params if (params is not None) else self.default_parameters()
         super(LRSSL, self).__init__(params)
         self.scalerS, self.scalerP = None, None
@@ -21,6 +22,9 @@ class LRSSL(BasicModel):
         self.model = None
         self.k, self.mu, self.lam, self.gam, self.maxiter, self.tol = [params[p] for p in ["k","mu","lam","gam","maxiter","tol"]]
         self.use_masked_dataset = True
+        self.LRSSL_filepath="LRSSL.R"
+        cmd = "wget -qO - \'https://raw.githubusercontent.com/LiangXujun/LRSSL/a16a75c028393e7256e3630bc8b7900026061f99/LRSSL.R\' | sed -n \'/###/q;p\' > %s" % self.LRSSL_filepath
+        call(cmd, shell=True)
 
     def default_parameters(self):
         params = {
@@ -61,31 +65,31 @@ class LRSSL(BasicModel):
     def fit(self, train_dataset):
         X_lst, S_lst, Y = self.preprocessing(train_dataset, inf=2)
         time_stamp = calendar.timegm(current_GMT)
-        cmd = "mkdir -p %s/ && wget -qO - \'https://raw.githubusercontent.com/LiangXujun/LRSSL/a16a75c028393e7256e3630bc8b7900026061f99/LRSSL.R\' | sed -n \'/###/q;p\' > %s/LRSSL.R" % (time_stamp, time_stamp)
-        call(cmd, shell=True)
+        filefolder = "LRSSL_%s/" % time_stamp
+        call("mkdir -p %s/" % filefolder, shell=True)
         L_lst = []
         for s in S_lst:
-            np.savetxt("%s/s.csv" % time_stamp,s)
-            call("R -q -e 'source(\"%s/LRSSL.R\");S <- as.matrix(read.table(\"%s/s.csv\", sep=\" \", header=F));Sp <- get.knn.graph(S, %d);write.csv(S, \"%s/s.csv\", row.names=F)' 2>&1 >/dev/null" % (time_stamp, time_stamp, self.k, time_stamp), shell=True)
-            L_lst.append(np.loadtxt("%s/s.csv" % time_stamp, skiprows=1, delimiter=","))
+            np.savetxt("%s/s.csv" % filefolder,s)
+            call("R -q -e 'source(\"%s\");S <- as.matrix(read.table(\"%s/s.csv\", sep=\" \", header=F));Sp <- get.knn.graph(S, %d);write.csv(S, \"%s/s.csv\", row.names=F)' 2>&1 >/dev/null" % (self.LRSSL_filepath, filefolder, self.k, filefolder), shell=True)
+            L_lst.append(np.loadtxt("%s/s.csv" % filefolder, skiprows=1, delimiter=","))
         L_lst = [np.diag(L.sum(axis=0))-L for L in L_lst]
         for i, x in enumerate(X_lst):
-            np.savetxt("%s/x_%d.csv" % (time_stamp, i+1),x)
+            np.savetxt("%s/x_%d.csv" % (filefolder, i+1),x)
         for i, l in enumerate(L_lst):
-            np.savetxt("%s/l_%d.csv" % (time_stamp, i+1),l)
-        np.savetxt("%s/y.csv" % time_stamp, Y)
+            np.savetxt("%s/l_%d.csv" % (filefolder, i+1),l)
+        np.savetxt("%s/y.csv" % filefolder, Y)
         assert all([s.shape[0]==Y.shape[0] and s.shape[1]==Y.shape[0] for s in S_lst])
         assert all([l.shape[0]==Y.shape[0] and l.shape[1]==Y.shape[0] for l in L_lst])
         assert all([x.shape[0]==Y.shape[0] and x.shape[1]==Y.shape[0] for x in X_lst])
-        call("R -q -e 'source(\"%s/LRSSL.R\");ml <- %d;mx <- %d;X_lst <- lapply(1:mx, function(i) as.matrix(read.table(paste0(\"%s/x_\",i,\".csv\"), sep=\" \", header=F)));L_lst <- lapply(1:ml, function(i) as.matrix(read.table(paste0(\"%s/l_\",i,\".csv\"), sep=\" \", header=F)));Y <- as.matrix(read.table(\"%s/y.csv\", sep=\" \", header=F));train.res <- lrssl(X_lst, L_lst, Y, mx, ml, %f, %f, %f, %d, %f);for(i in 1:mx){write.csv(train.res$Gs[[i]], paste0(\"%s/G_\",i,\".csv\"), row.names=F)};write.csv(train.res$alpha, \"%s/alpha.csv\", row.names=F);write.csv(list(t=train.res$t,diff_G=train.res$diff.G), \"%s/vals.csv\", row.names=F);write.csv(train.res$F.mat, \"%s/F_mat.csv\", row.names=F)' | grep '\[1\]'" % (time_stamp, len(L_lst), len(X_lst), time_stamp, time_stamp, time_stamp, self.mu, self.lam, self.gam, self.maxiter, self.tol, time_stamp, time_stamp, time_stamp, time_stamp), shell=True)
+        call("R -q -e 'source(\"%s\");ml <- %d;mx <- %d;X_lst <- lapply(1:mx, function(i) as.matrix(read.table(paste0(\"%s/x_\",i,\".csv\"), sep=\" \", header=F)));L_lst <- lapply(1:ml, function(i) as.matrix(read.table(paste0(\"%s/l_\",i,\".csv\"), sep=\" \", header=F)));Y <- as.matrix(read.table(\"%s/y.csv\", sep=\" \", header=F));train.res <- lrssl(X_lst, L_lst, Y, mx, ml, %f, %f, %f, %d, %f);for(i in 1:mx){write.csv(train.res$Gs[[i]], paste0(\"%s/G_\",i,\".csv\"), row.names=F)};write.csv(train.res$alpha, \"%s/alpha.csv\", row.names=F);write.csv(list(t=train.res$t,diff_G=train.res$diff.G), \"%s/vals.csv\", row.names=F);write.csv(train.res$F.mat, \"%s/F_mat.csv\", row.names=F)' | grep '\[1\]'" % (self.LRSSL_filepath, len(L_lst), len(X_lst), filefolder, filefolder, filefolder, self.mu, self.lam, self.gam, self.maxiter, self.tol, filefolder, filefolder, filefolder, filefolder), shell=True)
         self.model = {
-            "G": [np.loadtxt("%s/G_%d.csv" % (time_stamp, i+1), skiprows=1, delimiter=",") for i in range(len(X_lst))],
-            "alpha": np.loadtxt("%s/alpha.csv" % time_stamp, skiprows=1, delimiter=","),
-            "t": np.loadtxt("%s/vals.csv" % time_stamp, skiprows=1, delimiter=",")[0],
-            "diff_G": np.loadtxt("%s/vals.csv" % time_stamp, skiprows=1, delimiter=",")[1],
-            "F_mat": np.loadtxt("%s/F_mat.csv" % time_stamp, skiprows=1, delimiter=","),
+            "G": [np.loadtxt("%s/G_%d.csv" % (filefolder, i+1), skiprows=1, delimiter=",") for i in range(len(X_lst))],
+            "alpha": np.loadtxt("%s/alpha.csv" % filefolder, skiprows=1, delimiter=","),
+            "t": np.loadtxt("%s/vals.csv" % filefolder, skiprows=1, delimiter=",")[0],
+            "diff_G": np.loadtxt("%s/vals.csv" % filefolder, skiprows=1, delimiter=",")[1],
+            "F_mat": np.loadtxt("%s/F_mat.csv" % filefolder, skiprows=1, delimiter=","),
         }
-        call("rm -rf %s/" % time_stamp, shell=True)
+        call("rm -rf %s/ %s" % (filefolder, self.LRSSL_filepath), shell=True)
 
     def model_predict(self, test_dataset):
         X_lst, _, _ = self.preprocessing(test_dataset, inf=2)

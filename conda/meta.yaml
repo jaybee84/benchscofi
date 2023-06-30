@@ -24,6 +24,8 @@ requirements:
     - pulearn >=0.0.7
     - torch >=2.0.1
     - fastai >=2.7.12
+    - pytorch_lightning >=2.0.4
+    - torch_geometric >=2.3.1
 
 test:
   imports:
