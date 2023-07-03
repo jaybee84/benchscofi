@@ -1,7 +1,5 @@
 #coding:utf-8
 
-######TODO CUDA REPLACE
-
 ## Concatenated contents of https://github.com/ljatynu/NIMCGCN/tree/a0798ed29ae329dd71bff096ffc678527cc4099e/code
 from __future__ import division
 from torch import nn, optim
@@ -25,13 +23,14 @@ class Config(object):
 
 
 class Myloss(nn.Module):
-    def __init__(self):
+    def __init__(self, alpha=1.):
+        self.alpha = alpha
         super(Myloss, self).__init__()
 
     def forward(self, one_index, zero_index, target, input):
         loss = nn.MSELoss(reduction='none')
         loss_sum = loss(input, target)
-        return (1-opt.alpha)*loss_sum[one_index].sum()+opt.alpha*loss_sum[zero_index].sum()
+        return (1-self.alpha)*loss_sum[one_index].sum()+self.alpha*loss_sum[zero_index].sum()
 
 
 class Sizes(object):
@@ -45,7 +44,7 @@ class Sizes(object):
 
 def train(model, train_data, optimizer, opt):
     model.train()
-    regression_crit = Myloss()
+    regression_crit = Myloss(model.alpha)
     one_index = train_data[2][0].cuda().t().tolist() if (t.cuda.is_available()) else train_data[2][0].t().tolist()
     zero_index = train_data[2][1].cuda().t().tolist() if (t.cuda.is_available()) else train_data[2][1].t().tolist()
 
@@ -56,9 +55,10 @@ def train(model, train_data, optimizer, opt):
         loss.backward()
         optimizer.step()
         return loss
-    for epoch in range(1, opt.epoch+1):
+    for epoch in range(1, model.epoch+1):
         train_reg_loss = train_epoch()
-        print(train_reg_loss.item()/(len(one_index[0])+len(zero_index[0])))
+        if (epoch%opt.display_epoch==0):
+            print("LOSS %.5f (epoch %d)" % (train_reg_loss.item()/(len(one_index[0])+len(zero_index[0])), epoch))
 
 
 
@@ -172,23 +172,32 @@ class Model(nn.Module):
         self.linear_y_3 = nn.Linear(128, 64)
 
     def forward(self, input):
-        t.manual_seed(1)
+        #t.manual_seed(1)
         x_m = t.randn(self.m, self.fg)
         x_d = t.randn(self.d, self.fd)
 
+        ## ensure that weights are nonnegative
+        weights1 = t.relu(input[1]['data'][input[1]['edge_index'][0], input[1]['edge_index'][1]].cuda() if (t.cuda.is_available()) else input[1]['data'][input[1]['edge_index'][0], input[1]['edge_index'][1]])
         X1 = t.relu(self.gcn_x1(x_m.cuda() if (t.cuda.is_available()) else x_m
 		, input[1]['edge_index'].cuda() if (t.cuda.is_available()) else input[1]['edge_index']
-		, input[1]['data'][input[1]['edge_index'][0], input[1]['edge_index'][1]].cuda() if (t.cuda.is_available()) else input[1]['data'][input[1]['edge_index'][0], input[1]['edge_index'][1]]
-        ))
-        X = t.relu(self.gcn_x2(X1, input[1]['edge_index'].cuda() if (t.cuda.is_available()) else input[1]['edge_index']
-            , input[1]['data'][input[1]['edge_index'][0], input[1]['edge_index'][1]].cuda() if (t.cuda.is_available()) else input[1]['data'][input[1]['edge_index'][0], input[1]['edge_index'][1]]
+		, weights1
         ))
 
-        Y1 = t.relu(self.gcn_y1(x_d.cuda(), input[0]['edge_index'].cuda() if (t.cuda.is_available()) else input[0]['edge_index'] ######TODO
-            , input[0]['data'][input[0]['edge_index'][0], input[0]['edge_index'][1]]#.cuda()
+        ## ensure that weights are nonnegative
+        weights2 = t.relu(input[1]['data'][input[1]['edge_index'][0], input[1]['edge_index'][1]].cuda() if (t.cuda.is_available()) else input[1]['data'][input[1]['edge_index'][0], input[1]['edge_index'][1]])
+        X = t.relu(self.gcn_x2(X1, input[1]['edge_index'].cuda() if (t.cuda.is_available()) else input[1]['edge_index']
+            , weights2
         ))
-        Y = t.relu(self.gcn_y2(Y1, input[0]['edge_index']#.cuda()
-            , input[0]['data'][input[0]['edge_index'][0], input[0]['edge_index'][1]]#.cuda()
+
+        ## ensure that weights are nonnegative
+        weights3 = t.relu(input[0]['data'][input[0]['edge_index'][0], input[0]['edge_index'][1]].cuda() if (t.cuda.is_available()) else input[0]['data'][input[0]['edge_index'][0], input[0]['edge_index'][1]])
+        Y1 = t.relu(self.gcn_y1(x_d.cuda() if (t.cuda.is_available()) else x_d, input[0]['edge_index'].cuda() if (t.cuda.is_available()) else input[0]['edge_index']
+            , weights3
+        ))
+        ## ensure that weights are nonnegative
+        weights4 = t.relu(input[0]['data'][input[0]['edge_index'][0], input[0]['edge_index'][1]].cuda() if (t.cuda.is_available()) else input[0]['data'][input[0]['edge_index'][0], input[0]['edge_index'][1]] )
+        Y = t.relu(self.gcn_y2(Y1, input[0]['edge_index'].cuda() if (t.cuda.is_available()) else input[0]['edge_index']
+            , weights4
         ))
 
         x1 = t.relu(self.linear_x_1(X))
