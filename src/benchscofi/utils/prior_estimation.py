@@ -70,7 +70,7 @@ def roc_aided_estimation(model, val_dataset, ignore_zeroes=False, regression_typ
         return lambda alpha : (1-gamma)*Q(inv_Q(alpha)+Delta)+gamma*alpha
     def reg_type2(x):
         gamma, Delta, mu = x.tolist()
-        return lambda x : (1-gamma)*np.power(1+Delta*(1/np.power(alpha,mu)-1), -1/mu)+gamma*alpha
+        return lambda alpha : (1-gamma)*np.power(1+Delta*(1/np.power(alpha,mu)-1), -1/mu)+gamma*alpha
     scores = model.predict(val_dataset)
     predictions = model.classify(scores)
     _, plot_args = compute_metrics(scores, predictions, val_dataset, beta=1, ignore_zeroes=ignore_zeroes, verbose=False)
@@ -107,17 +107,17 @@ def divergence_aided_estimation(val_dataset, preprocessing_str, lmb=1., sigma=1.
                 #b_l = np.sum([(pi/np.sum(unl_x) if (unl_x[i]==1) else -1/np.sum(pos_x))*basis[l](X[i,:]) for i in range(X.shape[0])])
                 return b_l
             betas = np.array([beta_l(l) for l in range(len(basis))]) ## shape |basis|x1
-            betas_ = np.concatenate((betas, np.zeros(betas.shape)), axis=1).max(axis=1) ## shape |basis|x1
+            betas_ = np.concatenate((betas.reshape((betas.shape[0],1)), np.zeros((betas.shape[0],1))), axis=1).max(axis=1) ## shape |basis|x1
             return 1/lmb*betas_.dot(betas)-pi+1 ## shape 1x1
     else:
         def approx_div(pi):
             theta = np.array([pi, 1-pi]) ## shape 2x1
             phi = lambda x : np.array([b(x) for b in basis]) ## shape |basis|x1
             H = 1/np.sum(pos_x)*np.sum([phi(X[i,:]) for i in range(X.shape[0]) if (pos_x[i]==1)], axis=1) ## shape (d-1)x1 (X of shape (|basis|-1)xd)
-            R = np.concatenate((np.eye(len(basis)), np.zeros(len(basis))), axis=0) ## shape (|basis|+1)x(|basis|+1)
-            R = np.concatenate((np.zeros(len(basis)+1).T, R), axis=1) 
+            R = np.concatenate((np.eye(len(basis)), np.zeros((1,len(basis)))), axis=0) ## shape (|basis|+1)x(|basis|+1)
+            R = np.concatenate((np.zeros((len(basis)+1,1)), R), axis=1) 
             G = 1/np.sum(unl_x)*reduce(lambda x,y : x+y, [phi(X[i,:].T).dot(phi(X[i,:])) for i in range(X.shape[0]) if (unl_x[i]==1)]) ## shape dxd
-            return -0.5*theta.T.dot(H.T).dot(np.linalg.pinv(G+lmb*R)).dot(G).dot(np.linalg.pinv(G+lmb*R)).dot(H.dot(theta))+theta.T.dot(H.T).dot(np.linalg.pinv(G+lmb*R)).dot(H.dot(theta))-0.5
+            return -0.5*theta.T.dot(H.T).dot(np.linalg.pinv(G+lmb*R)).dot(G).dot(np.linalg.pinv(G+lmb*R)).dot(H.dot(theta))+theta.T.dot(H.T).dot(np.linalg.pinv(G+lmb*R)).dot(H.dot(theta))-0.5 ## H = shape = theta
     #res = minimize_scalar(approx_div, bounds=(0, 1), method='bounded')
     #return res.x
     ## Grid search
