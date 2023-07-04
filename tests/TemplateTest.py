@@ -26,11 +26,11 @@ class TestModel(unittest.TestCase):
         random_seed = 124565 
         np.random.seed(random_seed)
         random.seed(random_seed)
-        dataset = stanscofi.datasets.Dataset(**stanscofi.utils.load_dataset("Gottlieb", "../datasets/"))
+        #dataset = stanscofi.datasets.Dataset(**stanscofi.utils.load_dataset("Cdataset", "../datasets/"))
         #model = benchscofi.XXXXXX.XXXXXX()
         #model.fit(dataset)
         #scores = model.predict(dataset)
-        ##dataset = self.generate_dataset(random_seed)
+        dataset = self.generate_dataset(random_seed)
         test_size = 0.3
         train_set, test_set, _, _ = stanscofi.training_testing.traintest_validation_split(dataset, test_size, early_stop=2, metric="euclidean", disjoint_users=False, random_state=random_seed, verbose=False, print_dists=False)
         model = benchscofi.XXXXXX.XXXXXX()
@@ -46,6 +46,22 @@ class TestModel(unittest.TestCase):
         model.print_scores(scores)
         predictions = model.classify(scores)
         model.print_classification(predictions)
+        #print(scores.shape)
+        #print(predictions.shape)
+        #y_true_all = np.array([test_dataset.ratings_mat[j,i] for i,j in scores[:,:2].astype(int).tolist()])
+        #y_pred_all = predictions[:,2].flatten()
+        #print(y_true_all.shape)
+        #print(y_pred_all.shape)
+        #ids = np.argwhere(np.ones(test_dataset.ratings_mat.shape))
+        #folds_ids = [((test_dataset.folds[:,0]==i)&(test_dataset.folds[:,1]==j)).any() for i,j in ids[:,:2].tolist()]
+        #print(len(folds_ids))
+        #print(sum(folds_ids))
+        #print(test_dataset.folds.shape[0])
+        #y_true_all = y_true_all[folds_ids]
+        #y_pred_all = y_pred_all[folds_ids]
+        #scores_ = scores[folds_ids,:]
+        #assert y_true_all.shape[0] == test_dataset.folds.shape[0]
+        #assert y_pred_all.shape[0] == test_dataset.folds.shape[0]
         metrics, _ = stanscofi.validation.compute_metrics(scores, predictions, test_dataset, beta=1, verbose=False)
         #metrics, _ = stanscofi.validation.compute_metrics(scores, predictions, dataset, beta=1, verbose=False)
         print(metrics)
