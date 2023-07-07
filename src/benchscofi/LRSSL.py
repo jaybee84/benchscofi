@@ -1,5 +1,6 @@
 #coding: utf-8
 
+## https://github.com/LiangXujun/LRSSL/tree/a16a75c028393e7256e3630bc8b7900026061f99
 from stanscofi.models import BasicModel, create_scores
 from stanscofi.preprocessing import CustomScaler
 

@@ -8,6 +8,7 @@ from torch import nn
 from tqdm import tqdm
 from sklearn.metrics import roc_auc_score, mean_squared_error, average_precision_score
 
+## https://github.com/jilljenn/vae/tree/1d7f09af3bcaebfc5d8fa8cc18033d8bb8ca19bc
 from benchscofi.implementations import VariationalInference
 
 class VariationalWrapper(BasicModel):

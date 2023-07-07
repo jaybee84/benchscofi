@@ -26,7 +26,8 @@ class TestModel(unittest.TestCase):
         random_seed = 124565 
         np.random.seed(random_seed)
         random.seed(random_seed)
-        dataset = self.generate_dataset(random_seed)
+        from stanscofi.utils import load_dataset
+        dataset = stanscofi.datasets.Dataset(**load_dataset("YYYYYYYYYYY", "../"))
         test_size = 0.3
         train_set, test_set, _, _ = stanscofi.training_testing.traintest_validation_split(dataset, test_size, early_stop=2, metric="euclidean", disjoint_users=False, random_state=random_seed, verbose=False, print_dists=False)
         model = benchscofi.XXXXXX.XXXXXX()

@@ -4,6 +4,22 @@
 
 This repository is a part of the EU-funded [RECeSS project](https://recess-eu-project.github.io) (#101102016), and hosts the implementations and / or wrappers to published implementations of collaborative filtering-based algorithms for easy benchmarking.
 
+## Implementation states
+
+  Algorithm    | Synthetic data | TRANSCRIPT
+-------------- | -------------- | -------------- 
+SimplePULearning [1] | OK      |  OK
+FastaiCollabWrapper [2] | NaN      | FAIL
+PulearnWrapper [3] | OK      | does not end 
+Constant [4] |   OK   | OK
+PMF [5] |  OK    | FAIL
+
+[1] Neural Network with PU loss
+[2] FastAI
+[3] PuLearn
+[4] only return 1's
+[5] Bayesian Pairwise Ranking
+
 ## Install R and MATLAB/Octave
 
 Or ignore method "LRSSL", ...
