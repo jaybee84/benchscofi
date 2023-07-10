@@ -10,8 +10,8 @@ if __name__ == '__main__':
     # add tests to the test suite
     model_folder='../src/benchscofi/'
     all_models=[x.split(model_folder)[-1].split('.py')[0] for x in glob(model_folder+'*.py') if (x!=model_folder+'__init__.py')]
-    model_lst=all_models if (len(sys.argv)==1) else [sys.argv[1]]
-    dataset='' if (len(sys.argv)==2) else sys.argv[2]
+    model_lst=all_models if (len(sys.argv)<=1) else [sys.argv[1]]
+    dataset='' if (len(sys.argv)<=2) else sys.argv[2]
     assert len(model_lst)>1 or (model_lst[0] in all_models)
     for model in model_lst:
         call("sed s/XXXXXX/"+model+"/g TemplateTest"+("" if (len(dataset)==0) else "_Dataset")+".py > Test"+model+".py", shell=True)

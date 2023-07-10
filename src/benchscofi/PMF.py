@@ -32,6 +32,8 @@ class PMF(BasicModel):
     def model_predict(self, test_dataset):
         assert test_dataset.folds is not None
         folds = np.copy(test_dataset.folds)
-        folds[:,2] = [self.model._predict_user(user)[item] for user, item in folds[:,:2].tolist()]
-        scores = create_overscores(folds, test_dataset)
-        return scores
+        #folds[:,2] = [self.model._predict_user(user)[item] for user, item in folds[:,:2].tolist()]
+        mat = np.zeros(test_dataset.ratings_mat.shape)
+        mat[folds[:,1],folds[:,0]] = [self.model._predict_user(user)[item] for user, item in folds[:,:2].tolist()]
+        #scores = create_overscores(folds, test_dataset)
+        return mat#scores

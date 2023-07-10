@@ -123,6 +123,8 @@ class BPR:
 
         for idx, user in enumerate(sampled_users):
             pos_items = indices[indptr[user]:indptr[user + 1]]
+            if (len(pos_items)==0): ##
+                continue ##
             pos_item = np.random.choice(pos_items)
             neg_item = np.random.choice(n_items)
             while neg_item in pos_items:

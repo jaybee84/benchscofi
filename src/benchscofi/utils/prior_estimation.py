@@ -11,8 +11,40 @@ import numpy as np
 
 ## N: number of unlabeled points
 ## nfeatures: number of features
+## censoring setting
+def generate_Censoring_dataset(N=100,nfeatures=50,pi=0.3,mean=0.5,std=1,exact=True,random_state=123435):
+    assert nfeatures%2==0
+    assert pi>0 and pi<1
+    np.random.seed(random_state)
+    ## Generate feature matrices for unlabeled samples
+    if (exact):
+        NunlPos, NunlNeg = int(pi*N), N-int(pi*N)
+    else:
+        Nunl = np.random.binomial(1, np.sqrt(pi), size=N)
+        NunlPos, NunlNeg = np.sum(Nunl), np.sum(Nunl==0) 
+    UnlPosItems = np.random.normal(mean,std,size=(nfeatures,NunlPos))
+    UnlNegItems = np.random.normal(-mean,std,size=(nfeatures,NunlNeg))
+    users = np.concatenate((UnlPosItems[:nfeatures//2,:], UnlNegItems[:nfeatures//2,:]), axis=1)
+    items = np.concatenate((UnlPosItems[nfeatures//2:,:], UnlNegItems[nfeatures//2:,:]), axis=1)
+    ## Generate accessible ratings = y
+    ratingsP = np.concatenate((np.zeros((NunlPos, NunlPos)), np.ones((NunlPos, NunlNeg))), axis=1)
+    ratingsN = np.concatenate((-np.ones((NunlNeg, NunlPos)), np.zeros((NunlNeg, NunlNeg))), axis=1)
+    ratings = np.concatenate((ratingsP, ratingsN), axis=0)
+    ## Generate true labels = s
+    labelsP = np.concatenate((2*np.ones((NunlPos, NunlPos)), np.ones((NunlPos, NunlNeg))), axis=1)
+    labelsN = np.concatenate((-2*np.ones((NunlNeg, NunlPos)), -np.ones((NunlNeg, NunlNeg))), axis=1)
+    labels = np.concatenate((labelsP, labelsN), axis=0)
+    ## Input to stanscofi
+    ratings_mat = pd.DataFrame(ratings, columns=range(ratings.shape[1]), index=range(ratings.shape[0])).astype(int)
+    labels_mat = pd.DataFrame(labels, columns=range(labels.shape[1]), index=range(labels.shape[0])).astype(int)
+    users = pd.DataFrame(users, index=range(nfeatures//2), columns=range(users.shape[1]))
+    items = pd.DataFrame(items, index=range(nfeatures//2), columns=range(items.shape[1]))
+    return {"ratings_mat": ratings_mat, "users": users, "items": items}, labels_mat
+
+## N: number of unlabeled points
+## nfeatures: number of features
 ## Case-Control setting
-def generate_PU_dataset(N=100,nfeatures=50,pi=0.3,mean=0.5,std=1,exact=True,random_state=123435):
+def generate_CaseControl_dataset(N=100,nfeatures=50,pi=0.3,mean=0.5,std=1,exact=True,random_state=123435):
     assert nfeatures%2==0
     assert pi>0 and pi<1
     np.random.seed(random_state)
