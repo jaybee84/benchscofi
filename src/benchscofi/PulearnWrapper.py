@@ -52,6 +52,6 @@ class PulearnWrapper(BasicModel):
 
     def model_predict(self, test_dataset):
         X, _ = self.preprocessing(test_dataset)
-        preds = self.model.predict(X)
+        preds = self.model.predict_proba(X)
         scores = create_scores(preds, test_dataset)
         return scores

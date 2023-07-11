@@ -9,91 +9,125 @@ from functools import reduce
 import pandas as pd
 import numpy as np
 
-## N: number of unlabeled points
+## N: total number of (item, user) pairs
 ## nfeatures: number of features
-## censoring setting
-def generate_Censoring_dataset(N=100,nfeatures=50,pi=0.3,mean=0.5,std=1,exact=True,random_state=123435):
+def generate_Censoring_dataset(pi=0.3,c=0.3,N=100,nfeatures=50,mean=0.5,std=1,exact=True,random_state=123435):
     assert nfeatures%2==0
     assert pi>0 and pi<1
+    assert c>0 and c<1
     np.random.seed(random_state)
     ## Generate feature matrices for unlabeled samples
+    Nsqrt = int(np.sqrt(N)+1)
     if (exact):
-        NunlPos, NunlNeg = int(pi*N), N-int(pi*N)
+        NPos, NNeg = int(pi*Nsqrt), Nsqrt-int(pi*Nsqrt)
     else:
-        Nunl = np.random.binomial(1, np.sqrt(pi), size=N)
-        NunlPos, NunlNeg = np.sum(Nunl), np.sum(Nunl==0) 
-    UnlPosItems = np.random.normal(mean,std,size=(nfeatures,NunlPos))
-    UnlNegItems = np.random.normal(-mean,std,size=(nfeatures,NunlNeg))
-    users = np.concatenate((UnlPosItems[:nfeatures//2,:], UnlNegItems[:nfeatures//2,:]), axis=1)
-    items = np.concatenate((UnlPosItems[nfeatures//2:,:], UnlNegItems[nfeatures//2:,:]), axis=1)
-    ## Generate accessible ratings = y
-    ratingsP = np.concatenate((np.zeros((NunlPos, NunlPos)), np.ones((NunlPos, NunlNeg))), axis=1)
-    ratingsN = np.concatenate((-np.ones((NunlNeg, NunlPos)), np.zeros((NunlNeg, NunlNeg))), axis=1)
-    ratings = np.concatenate((ratingsP, ratingsN), axis=0)
-    ## Generate true labels = s
-    labelsP = np.concatenate((2*np.ones((NunlPos, NunlPos)), np.ones((NunlPos, NunlNeg))), axis=1)
-    labelsN = np.concatenate((-2*np.ones((NunlNeg, NunlPos)), -np.ones((NunlNeg, NunlNeg))), axis=1)
-    labels = np.concatenate((labelsP, labelsN), axis=0)
+        NN = np.random.binomial(1, pi, size=Nsqrt)
+        NPos, NNeg = np.sum(NN), np.sum(NN==0)
+    assert NPos+NNeg==Nsqrt
+    ### All user feature vectors
+    users = np.random.normal(0,std,size=(nfeatures//2,Nsqrt))
+    ### All positive pairs
+    PosItems = np.random.normal(mean,std,size=(nfeatures//2,NPos))
+    ### All negative pairs
+    NegItems = np.random.normal(-mean,std,size=(nfeatures//2,NNeg))
+    ### All item feature vectors
+    items = np.concatenate((PosItems, NegItems), axis=1)
+    ### True label matrix
+    labels_mat = np.asarray(np.zeros((Nsqrt,Nsqrt)), dtype=int)
+    labels_mat[:NPos,:] = 1
+    labels_mat[NPos:,:] = -1
+    ## Generate accessible ratings = y among positive samples with probability c
+    if (exact):
+        ids_ls = list(range(Nsqrt*NPos))
+        np.random.shuffle(ids_ls)
+        NlabPos = np.asarray(np.zeros(Nsqrt*NPos), dtype=int)
+        NlabPos[ids_ls[:int(c*Nsqrt*NPos)]] = 1
+    else:
+        NlabPos = np.random.binomial(1, c, size=Nsqrt*NPos)
+    ratings_mat = np.copy(labels_mat)
+    ratings_mat[:NPos,:] *= NlabPos.reshape((NPos, Nsqrt)) ## hide some of the positive
+    ratings_mat[NPos:,:] = 0 ## hide all negative
     ## Input to stanscofi
-    ratings_mat = pd.DataFrame(ratings, columns=range(ratings.shape[1]), index=range(ratings.shape[0])).astype(int)
-    labels_mat = pd.DataFrame(labels, columns=range(labels.shape[1]), index=range(labels.shape[0])).astype(int)
-    users = pd.DataFrame(users, index=range(nfeatures//2), columns=range(users.shape[1]))
-    items = pd.DataFrame(items, index=range(nfeatures//2), columns=range(items.shape[1]))
+    user_list, item_list, feature_list = range(Nsqrt), range(Nsqrt), range(nfeatures//2)
+    ratings_mat = pd.DataFrame(ratings_mat, columns=user_list, index=item_list).astype(int)
+    labels_mat = pd.DataFrame(labels_mat, columns=user_list, index=item_list).astype(int)
+    users = pd.DataFrame(users, index=feature_list, columns=user_list)
+    items = pd.DataFrame(items, index=feature_list, columns=item_list)
     return {"ratings_mat": ratings_mat, "users": users, "items": items}, labels_mat
 
-## N: number of unlabeled points
+## N: total number of datapoints
 ## nfeatures: number of features
 ## Case-Control setting
-def generate_CaseControl_dataset(N=100,nfeatures=50,pi=0.3,mean=0.5,std=1,exact=True,random_state=123435):
+def generate_CaseControl_dataset(N=100,nfeatures=50,pi=0.3,sparsity=0.01,mean=0.5,std=1,exact=True,random_state=123435):
     assert nfeatures%2==0
     assert pi>0 and pi<1
+    assert sparsity>0 and sparsity<1
     np.random.seed(random_state)
-    ## Generate feature matrices for unlabeled samples
+    ## Generate feature matrices for unlabeled samples (from positive dist with probability pi)
+    Nsqrt = int(np.sqrt(N))
+    Nunl = int(Nsqrt*np.sqrt(1-sparsity))
+    Nlab = Nsqrt-Nunl
+    NPos = int(pi*Nlab)
+    NNeg = Nlab-NPos
+    assert NNeg+NPos+Nunl==Nsqrt
     if (exact):
-        NunlPos, NunlNeg = int(pi*N), N-int(pi*N)
+        NunlPos = int(pi*Nunl)
+        NunlNeg = Nunl-NunlPos
     else:
-        Nunl = np.random.binomial(1, np.sqrt(pi), size=N)
-        NunlPos, NunlNeg = np.sum(Nunl), np.sum(Nunl==0) 
-    UnlPosItems = np.random.normal(mean,std,size=(nfeatures,NunlPos))
-    UnlNegItems = np.random.normal(-mean,std,size=(nfeatures,NunlNeg))
-    users = np.concatenate((UnlPosItems[:nfeatures//2,:], UnlNegItems[:nfeatures//2,:]), axis=1)
-    items = np.concatenate((UnlPosItems[nfeatures//2:,:], UnlNegItems[nfeatures//2:,:]), axis=1)
+        NunlIsPos = np.random.binomial(1, pi, size=Nunl)
+        NunlPos, NunlNeg = np.sum(NunlIsPos), np.sum(NunlIsPos==0)
+    assert NunlPos+NunlNeg==Nunl
+    ### All user feature vectors
+    assert Nunl+Nlab==Nsqrt
+    users = np.random.normal(0,std,size=(nfeatures//2,Nsqrt))
+    ## Concatenated item feature vectors for unlabeled and labeled pairs
+    PosItems = np.random.normal(mean,std,size=(nfeatures//2,NunlPos+NPos))
+    NegItems = np.random.normal(-mean,std,size=(nfeatures//2,NunlNeg+NNeg))
+    items = np.concatenate((PosItems, NegItems), axis=1)
+    ### True label matrix
+    labels_mat = np.asarray(np.zeros((Nsqrt,Nsqrt)), dtype=int)
+    labels_mat[:(NunlPos+NPos),:] = 1
+    labels_mat[(NunlPos+NPos):,:] = -1
     ## Generate accessible ratings = y
-    ratingsP = np.concatenate((np.zeros((NunlPos, NunlPos)), np.ones((NunlPos, NunlNeg))), axis=1)
-    ratingsN = np.concatenate((-np.ones((NunlNeg, NunlPos)), np.zeros((NunlNeg, NunlNeg))), axis=1)
-    ratings = np.concatenate((ratingsP, ratingsN), axis=0)
-    ## Generate true labels = s
-    labelsP = np.concatenate((2*np.ones((NunlPos, NunlPos)), np.ones((NunlPos, NunlNeg))), axis=1)
-    labelsN = np.concatenate((-2*np.ones((NunlNeg, NunlPos)), -np.ones((NunlNeg, NunlNeg))), axis=1)
-    labels = np.concatenate((labelsP, labelsN), axis=0)
+    ratings_mat = np.copy(labels_mat)
+    ids_user_ls = list(range(Nsqrt))
+    np.random.shuffle(ids_user_ls)
+    NuserUnlPos = np.asarray(np.zeros(Nsqrt), dtype=int)
+    NuserUnlPos[:Nunl] = 1
+    ratings_mat[:NunlPos,np.argwhere(NuserUnlPos==1)] = 0
+    ids_user_ls = list(range(Nsqrt))
+    np.random.shuffle(ids_user_ls)
+    NuserUnlNeg = np.asarray(np.zeros(Nsqrt), dtype=int)
+    NuserUnlNeg[:Nunl] = 1
+    ratings_mat[(NunlPos+NPos):(NunlPos+NPos+NunlNeg),np.argwhere(NuserUnlNeg==1)] = 0
     ## Input to stanscofi
-    ratings_mat = pd.DataFrame(ratings, columns=range(ratings.shape[1]), index=range(ratings.shape[0])).astype(int)
-    labels_mat = pd.DataFrame(labels, columns=range(labels.shape[1]), index=range(labels.shape[0])).astype(int)
-    users = pd.DataFrame(users, index=range(nfeatures//2), columns=range(users.shape[1]))
-    items = pd.DataFrame(items, index=range(nfeatures//2), columns=range(items.shape[1]))
+    user_list, item_list, feature_list = range(Nsqrt), range(Nsqrt), range(nfeatures//2)
+    ratings_mat = pd.DataFrame(ratings_mat, columns=user_list, index=item_list).astype(int)
+    labels_mat = pd.DataFrame(labels_mat, columns=user_list, index=item_list).astype(int)
+    users = pd.DataFrame(users, index=feature_list, columns=user_list)
+    items = pd.DataFrame(items, index=feature_list, columns=item_list)
     return {"ratings_mat": ratings_mat, "users": users, "items": items}, labels_mat
 
 ## Charles Elkan and Keith Noto. Learning classifiers from only positive and unlabeled data. In Proceedings of the 14th ACM SIGKDD international conference on Knowledge discovery and data mining, pages 213–220, 2008.
-def data_aided_estimation(model, val_dataset, estimator_type=[1,2,3][0]):
+def data_aided_estimation(scores_all, val_dataset, estimator_type=[1,2,3][0]): ## estimates c and pi
     assert estimator_type in [1,2,3]
-    scores = model.predict(val_dataset)
-    scores_all = scores[:,2].flatten()
-    ## clipped in [0,1]
-    scores_all -= np.min(scores_all)
-    scores_all /= np.max(scores_all)
+    assert (scores_all>=0).all() and (scores_all<=1).all()
     true_all = np.array([val_dataset.ratings_mat[j,i] for i,j in scores[:,:2].astype(int).tolist()])
-    if (estimator_type < 3):
-        sum_pos = (true_all>0).astype(int).dot(scores_all)
-        if (estimator_type == 1):
-            est_pi = sum_pos/np.sum(true_all>0)
-            return est_pi ## remove
-        est_pi = np.sum(scores_all)/scores.shape[0] ## pi, not c
-        return est_pi
-    est_pi = np.max(scores_all)
-    return est_pi ## remove
+    sum_pos = (true_all>0).astype(int).dot(scores_all)
+    if (estimator_type == 1):
+        est_c = sum_pos/np.sum(true_all>0)
+        est_pi = np.sum(true_all>0)/len(true_all)
+    elif (estimator_type==2):
+        est_c = sum_pos/np.sum(scores_all)
+        est_pi = np.sum(scores_all)/len(scores_all)
+    else:
+        est_c = np.max(scores_all)
+        est_pi = sum_pos/(len(scores_all)*est_c)
+    return est_c, est_pi
 
 ## https://arxiv.org/pdf/1306.5056.pdf
-def roc_aided_estimation(model, val_dataset, ignore_zeroes=False, regression_type=[1,2][0]):
+## TEST
+def roc_aided_estimation(scores, predictions, val_dataset, ignore_zeroes=False, regression_type=[1,2][0]):
     assert regression_type in [1,2]
     def reg_type1(x):
         gamma, Delta = x.tolist()
@@ -103,8 +137,8 @@ def roc_aided_estimation(model, val_dataset, ignore_zeroes=False, regression_typ
     def reg_type2(x):
         gamma, Delta, mu = x.tolist()
         return lambda alpha : (1-gamma)*np.power(1+Delta*(1/np.power(alpha,mu)-1), -1/mu)+gamma*alpha
-    scores = model.predict(val_dataset)
-    predictions = model.classify(scores)
+    #scores = model.predict(val_dataset)
+    #predictions = model.classify(scores)
     _, plot_args = compute_metrics(scores, predictions, val_dataset, beta=1, ignore_zeroes=ignore_zeroes, verbose=False)
     assert len(plot_args["aucs"])>0
     ## Empirical (average-user) ROC curve X=base_fpr, Y=mean_tprs
@@ -123,6 +157,7 @@ def roc_aided_estimation(model, val_dataset, ignore_zeroes=False, regression_typ
 
 ## https://proceedings.mlr.press/v45/Christoffel15.pdf (L1-Distance)
 ## https://arxiv.org/pdf/1206.4677.pdf (Pearson)
+## TEST
 def divergence_aided_estimation(val_dataset, preprocessing_str, lmb=1., sigma=1., divergence_type=["L1-distance","Pearson"][0]):
     assert divergence_type in ["L1-distance", "Pearson"]
     res = eval("stanscofi.preprocessing."+preprocessing_str)(val_dataset)
