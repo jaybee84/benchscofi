@@ -4,6 +4,7 @@ from stanscofi.models import BasicModel, create_scores
 from stanscofi.preprocessing import preprocessing_routine
 import numpy as np
 
+ ## UNLABELED ARE -1 POSITIVE ARE 1
 import pulearn
 
 class PulearnWrapper(BasicModel):
@@ -42,6 +43,8 @@ class PulearnWrapper(BasicModel):
         self.filter = filter_
         self.scalerS = scalerS
         self.scalerP = scalerP
+        ## Unlabeled samples are -1 in pulearn
+        y[y<1] = -1
         return X, y
         
     def fit(self, train_dataset):

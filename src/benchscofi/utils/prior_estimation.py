@@ -58,48 +58,47 @@ def generate_Censoring_dataset(pi=0.3,c=0.3,N=100,nfeatures=50,mean=0.5,std=1,ex
 ## N: total number of datapoints
 ## nfeatures: number of features
 ## Case-Control setting
-def generate_CaseControl_dataset(N=100,nfeatures=50,pi=0.3,sparsity=0.01,mean=0.5,std=1,exact=True,random_state=123435):
+def generate_CaseControl_dataset(N=100,nfeatures=50,pi=0.3,sparsity=0.01,imbalance=0.03,mean=0.5,std=1,exact=True,random_state=123435):
     assert nfeatures%2==0
     assert pi>0 and pi<1
     assert sparsity>0 and sparsity<1
     np.random.seed(random_state)
     ## Generate feature matrices for unlabeled samples (from positive dist with probability pi)
     Nsqrt = int(np.sqrt(N))
-    Nunl = int(Nsqrt*np.sqrt(1-sparsity))
-    Nlab = Nsqrt-Nunl
-    NPos = int(pi*Nlab)
-    NNeg = Nlab-NPos
-    assert NNeg+NPos+Nunl==Nsqrt
     if (exact):
-        NunlPos = int(pi*Nunl)
-        NunlNeg = Nunl-NunlPos
+        NPos = int(pi*np.sqrt(N))
+        NNeg = Nsqrt-NPos
     else:
-        NunlIsPos = np.random.binomial(1, pi, size=Nunl)
-        NunlPos, NunlNeg = np.sum(NunlIsPos), np.sum(NunlIsPos==0)
-    assert NunlPos+NunlNeg==Nunl
+        NIsPos = np.random.binomial(1, pi, size=Nsqrt)
+        NPos, NNeg = np.sum(NIsPos), np.sum(NIsPos==0)
     ### All user feature vectors
-    assert Nunl+Nlab==Nsqrt
     users = np.random.normal(0,std,size=(nfeatures//2,Nsqrt))
-    ## Concatenated item feature vectors for unlabeled and labeled pairs
-    PosItems = np.random.normal(mean,std,size=(nfeatures//2,NunlPos+NPos))
-    NegItems = np.random.normal(-mean,std,size=(nfeatures//2,NunlNeg+NNeg))
+    ## Concatenated item feature vectors for positive and negative pairs
+    PosItems = np.random.normal(mean,std,size=(nfeatures//2,NPos))
+    NegItems = np.random.normal(-mean,std,size=(nfeatures//2,NNeg))
     items = np.concatenate((PosItems, NegItems), axis=1)
     ### True label matrix
     labels_mat = np.asarray(np.zeros((Nsqrt,Nsqrt)), dtype=int)
-    labels_mat[:(NunlPos+NPos),:] = 1
-    labels_mat[(NunlPos+NPos):,:] = -1
+    labels_mat[:NPos,:] = 1
+    labels_mat[NPos:,:] = -1
     ## Generate accessible ratings = y
-    ratings_mat = np.copy(labels_mat)
-    ids_user_ls = list(range(Nsqrt))
+    ratings_mat = np.copy(labels_mat)*0
+    Ni = sparsity/(pi*(1+imbalance))
+    Nip = (sparsity-pi*Ni)/(1-pi)
+    NNegLab = int(NNeg*Nsqrt*Nip)
+    NPosLab = int(NPos*Nsqrt*Ni)
+    ids_user_ls = list(range(NPos*Nsqrt))
     np.random.shuffle(ids_user_ls)
-    NuserUnlPos = np.asarray(np.zeros(Nsqrt), dtype=int)
-    NuserUnlPos[:Nunl] = 1
-    ratings_mat[:NunlPos,np.argwhere(NuserUnlPos==1)] = 0
-    ids_user_ls = list(range(Nsqrt))
+    select_pos = np.asarray(np.zeros(NPos*Nsqrt), dtype=int)
+    select_pos[ids_user_ls[:NPosLab]] = 1
+    select_pos = select_pos.reshape((NPos, Nsqrt))
+    ratings_mat[:NPos,:] = select_pos
+    ids_user_ls = list(range(NNeg*Nsqrt))
     np.random.shuffle(ids_user_ls)
-    NuserUnlNeg = np.asarray(np.zeros(Nsqrt), dtype=int)
-    NuserUnlNeg[:Nunl] = 1
-    ratings_mat[(NunlPos+NPos):(NunlPos+NPos+NunlNeg),np.argwhere(NuserUnlNeg==1)] = 0
+    select_neg = np.asarray(np.zeros(NNeg*Nsqrt), dtype=int)
+    select_neg[ids_user_ls[:NNegLab]] = -1
+    select_neg = select_neg.reshape((NNeg, Nsqrt))
+    ratings_mat[NPos:,:] = select_neg
     ## Input to stanscofi
     user_list, item_list, feature_list = range(Nsqrt), range(Nsqrt), range(nfeatures//2)
     ratings_mat = pd.DataFrame(ratings_mat, columns=user_list, index=item_list).astype(int)
@@ -109,47 +108,69 @@ def generate_CaseControl_dataset(N=100,nfeatures=50,pi=0.3,sparsity=0.01,mean=0.
     return {"ratings_mat": ratings_mat, "users": users, "items": items}, labels_mat
 
 ## Charles Elkan and Keith Noto. Learning classifiers from only positive and unlabeled data. In Proceedings of the 14th ACM SIGKDD international conference on Knowledge discovery and data mining, pages 213–220, 2008.
-def data_aided_estimation(scores_all, val_dataset, estimator_type=[1,2,3][0]): ## estimates c and pi
+def data_aided_estimation(scores_all, true_all, estimator_type=[1,2,3][0]): 
     assert estimator_type in [1,2,3]
     assert (scores_all>=0).all() and (scores_all<=1).all()
-    true_all = np.array([val_dataset.ratings_mat[j,i] for i,j in scores[:,:2].astype(int).tolist()])
+    assert scores_all.shape[0] == true_all.shape[0]
     sum_pos = (true_all>0).astype(int).dot(scores_all)
+    size = len(scores_all)
     if (estimator_type == 1):
         est_c = sum_pos/np.sum(true_all>0)
-        est_pi = np.sum(true_all>0)/len(true_all)
     elif (estimator_type==2):
         est_c = sum_pos/np.sum(scores_all)
-        est_pi = np.sum(scores_all)/len(scores_all)
     else:
-        est_c = np.max(scores_all)
-        est_pi = sum_pos/(len(scores_all)*est_c)
+        est_c = np.max(scores_all) ## in the paper (but mean is used in pulearn)
+    est_pi = sum_pos/(est_c*size)
     return est_c, est_pi
 
 ## https://arxiv.org/pdf/1306.5056.pdf
-## TEST
-def roc_aided_estimation(scores, predictions, val_dataset, ignore_zeroes=False, regression_type=[1,2][0]):
+from sklearn.metrics import roc_curve as ROC
+def roc_aided_estimation(scores_all, true_all, regression_type=[1,2][0]):
     assert regression_type in [1,2]
-    def reg_type1(x):
-        gamma, Delta = x.tolist()
-        Phi = norm(loc=0.0, scale=1.0)
-        Q, inv_Q = np.vectorize(Phi.cdf), np.vectorize(Phi.ppf)
-        return lambda alpha : (1-gamma)*Q(inv_Q(alpha)+Delta)+gamma*alpha
-    def reg_type2(x):
-        gamma, Delta, mu = x.tolist()
-        return lambda alpha : (1-gamma)*np.power(1+Delta*(1/np.power(alpha,mu)-1), -1/mu)+gamma*alpha
-    #scores = model.predict(val_dataset)
-    #predictions = model.classify(scores)
-    _, plot_args = compute_metrics(scores, predictions, val_dataset, beta=1, ignore_zeroes=ignore_zeroes, verbose=False)
-    assert len(plot_args["aucs"])>0
+    assert scores_all.shape[0] == true_all.shape[0]
+    fpr, tpr, _ = ROC(true_all, scores_all)
+    #if (regression_type==1):
+    #    import matplotlib.pyplot as plt
+    #    plt.plot(fpr, tpr, "b-")
+    #    plt.plot(fpr, fpr, "k--")
+    #    plt.title("ROC curve")
+    #    plt.show()
+    base_fpr = np.linspace(0.001, 0.999, 101) ## alpha false positive rate
+    mean_tprs = np.interp(base_fpr, fpr, tpr)
+    mean_tprs[0] = 0.0
     ## Empirical (average-user) ROC curve X=base_fpr, Y=mean_tprs
-    base_fprs = np.linspace(0, 1, 101) ## alpha false positive rate
-    mean_tprs = plot_args["tprs"].mean(axis=0) ## corresponding detection rate p(alpha)
     ## Fit empirical ROC curve onto regression models from C. Lloyd. Regression models for convex ROC curves. Biometrics, 56(3):862–867, September 2000.
+    from scipy.special import xlogy
     def binomial_deviance(x):
-        f = (reg_type1 if (regression_type==1) else reg_type2)(x)
-        return -2*np.sum( np.multiply(mean_tprs, np.log(f(base_fprs))) + np.multiply(1-mean_tprs, np.log(1-f(base_fprs))) )
+        log = lambda m : xlogy(np.sign(m), m)
+        import warnings
+        warnings.simplefilter("ignore") #invalid value in power
+        power = lambda m, p : np.power(m,p) #np.sign(m)*(np.abs(m))**p
+        #def power(m,p):
+        #    try:
+        #        import warnings
+        #        warnings.simplefilter("error")
+        #        m[m<0] = 0
+        #        return np.power(m,p)
+        #    except:
+        #        print(m)
+        #        print(p)
+        #        raise ValueError
+        if (regression_type==1):
+            gamma, Delta = x.tolist()
+            def f(alpha):
+                Phi = norm(loc=0.0, scale=1.0)
+                Q, inv_Q = np.vectorize(Phi.cdf), np.vectorize(Phi.ppf)
+                val = (1-gamma)*Q(inv_Q(alpha)+Delta)+gamma*alpha
+                return val
+        else:
+            gamma, Delta, mu = x.tolist()
+            def f(alpha):
+                val = (1-gamma)*power(1+Delta*(1/power(alpha,mu)-1), -1/mu)+gamma*alpha
+                return val
+        return -2*np.sum( np.multiply(mean_tprs, log(f(base_fpr))) + np.multiply(1-mean_tprs, log(1-f(base_fpr))) )
     x0 = np.array([1]*(regression_type+1)) ## gamma, Delta(, mu if regression_type=2)
-    res = minimize(binomial_deviance, x0, method='nelder-mead', options={'xatol': 1e-8, 'disp': True})
+    res = minimize(binomial_deviance, x0, method='nelder-mead', options={'xatol': 1e-8, 'disp': True, "maxiter": 1000})
     args = res.x.tolist()
     if (regression_type == 1):
         return args[0]
