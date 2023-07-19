@@ -1,7 +1,7 @@
 #coding: utf-8
 
 ## http://bioinformatics.csu.edu.cn/resources/softs/DrugRepositioning/DRRS/index.html
-from stanscofi.models import BasicModel, create_scores
+from stanscofi.models import BasicModel
 from stanscofi.preprocessing import CustomScaler
 
 import numpy as np
@@ -17,26 +17,24 @@ current_GMT = time.gmtime()
 class DRRS(BasicModel):
     def __init__(self, params=None):
         self.MCR_HOME="/usr/local/MATLAB/MATLAB_Compiler_Runtime"
+        self.DRRS_path = "http://bioinformatics.csu.edu.cn/resources/softs/DrugRepositioning/DRRS/soft/"
         if (not os.path.exists(self.MCR_HOME)):
             raise ValueError("Please install MATLAB.")
         params = params if (params is not None) else self.default_parameters()
-        assert params["use_linux"]
         super(DRRS, self).__init__(params)
+        assert self.use_linux
         self.scalerS, self.scalerP = None, None
         self.name = "DRRS" 
-        self.model = None
-        self.DRRS_path = "http://bioinformatics.csu.edu.cn/resources/softs/DrugRepositioning/DRRS/soft/"
-        self.DRRS_filepath = "DRRS_L" if (params["use_linux"]) else "DRRS_W.exe"
-        self.use_masked_dataset = True
+        self.predictions = None
+        self.DRRS_filepath = "DRRS_L" if (self.use_linux) else "DRRS_W.exe"
 
     def default_parameters(self):
         params = {
-            "decision_threshold": 1, 
             "use_linux": True, #False: use windows
         }
         return params
 
-    def preprocessing(self, dataset, inf=2):
+    def preprocessing(self, dataset, is_training=True, inf=2):
         if (self.scalerS is None):
             self.scalerS = CustomScaler(posinf=inf, neginf=-inf)
         S_ = self.scalerS.fit_transform(dataset.items.T.copy(), subset=None)
@@ -45,11 +43,10 @@ class DRRS(BasicModel):
             self.scalerP = CustomScaler(posinf=inf, neginf=-inf)
         P_ = self.scalerP.fit_transform(dataset.users.T.copy(), subset=None)
         X_p = P_ if (P_.shape[0]==P_.shape[1]) else np.corrcoef(P_)
-        A_sp = dataset.ratings_mat.T # users x items
-        return X_s, X_p, A_sp
+        A_sp = dataset.ratings.toarray().T # users x items
+        return [X_s, X_p, A_sp]
         
-    def fit(self, train_dataset):
-        X_s, X_p, A_sp = self.preprocessing(train_dataset)
+    def model_fit(self, X_s, X_p, A_sp):
         time_stamp = calendar.timegm(current_GMT)
         filefolder = "DRRS_%s" % time_stamp 
         call("mkdir -p %s/" % filefolder, shell=True) 
@@ -61,13 +58,8 @@ class DRRS(BasicModel):
         os.environ['XAPPLRESDIR'] = "%s/v80/X11/app-defaults" % self.MCR_HOME
         call(" ".join(["cd", "%s/" % filefolder, "&&", "./"+self.DRRS_filepath, drugsim, diseasesim, didra]), shell=True)
         assert os.path.exists("%s/Result_dr_Mat.txt" % filefolder)
-        self.model = np.loadtxt("%s/Result_dr_Mat.txt" % filefolder, delimiter="\t").T
+        self.predictions = np.loadtxt("%s/Result_dr_Mat.txt" % filefolder, delimiter="\t").T
         call("rm -rf %s/ %s" % (filefolder, self.DRRS_filepath), shell=True)
 
-    def model_predict(self, test_dataset):
-        assert test_dataset.folds is not None
-        ids = np.argwhere(np.ones(test_dataset.ratings_mat.shape))
-        in_folds = [((test_dataset.folds[:,0]==j)&(test_dataset.folds[:,1]==i)).any() for i,j in ids[:,:2].tolist()]
-        preds = np.array([self.model[i,j] if (in_folds[ix]) else 0 for ix, [i,j] in enumerate(ids[:,:2].tolist())]).ravel()
-        scores = create_scores(preds, test_dataset)
-        return scores
+    def model_predict_proba(self, X_s, X_p, A_sp):
+        return self.predictions

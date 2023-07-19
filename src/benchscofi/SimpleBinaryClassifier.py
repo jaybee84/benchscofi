@@ -1,7 +1,7 @@
 #coding: utf-8
 
-from stanscofi.models import BasicModel, create_scores
-from stanscofi.preprocessing import preprocessing_routine
+from stanscofi.models import BasicModel
+from stanscofi.preprocessing import preprocessing_XY
 
 import numpy as np
 import os
@@ -16,29 +16,25 @@ class SimpleNeuralNetwork(BasicModel):
         params = params if (params is not None) else self.default_parameters()
         super(SimpleNeuralNetwork, self).__init__(params)
         self.name = "SimpleNeuralNetwork"
-        self.scalerP, self.scalerS = None, None
-        for p in params:
-            setattr(self, p, params[p])
+        self.scalerP, self.scalerS, self.filter = None, None, None
         assert self.preprocessing_str in ["Perlman_procedure", "meanimputation_standardize", "same_feature_preprocessing"]
-        self.filter = None
         assert len(self.layers_dims)>0
-        self.use_masked_dataset = False
 
     def default_parameters(self):
         params = {
             "layers_dims": [16,32], "decision_threshold": 0.5, "preprocessing_str": "meanimputation_standardize", 
-            "subset": None, "steps_per_epoch":1, "epochs":50, "random_state": 124565,
+            "subset": None, "steps_per_epoch":1, "epochs":50, "random_state": 1234,
         }
         return params
 
-    def preprocessing(self, dataset):
-        X, y, scalerS, scalerP, filter_ = preprocessing_routine(dataset, self.preprocessing_str, subset_=self.subset, filter_=self.filter, scalerS=self.scalerS, scalerP=self.scalerP, inf=2, njobs=1)
+    def preprocessing(self, dataset, is_training=True):
+        X, y, scalerS, scalerP, filter_ = preprocessing_XY(dataset, self.preprocessing_str, subset_=self.subset, filter_=self.filter, scalerS=self.scalerS, scalerP=self.scalerP, inf=2, njobs=1)
         self.filter = filter_
         self.scalerS = scalerS
         self.scalerP = scalerP
-        return X, y
+        return [X, y] if (is_training) else [X]
         
-    def fit(self, train_dataset):
+    def model_fit(self, X, y):
         os.environ['PYTHONHASHSEED']=str(self.random_state)
         os.environ['TF_CUDNN_DETERMINISTIC'] = '1'  # new flag present in tf 2.0+
         os.environ['TF_DETERMINISTIC_OPS'] = '1'
@@ -47,7 +43,6 @@ class SimpleNeuralNetwork(BasicModel):
         np.random.seed(self.random_state)
         tf.config.threading.set_inter_op_parallelism_threads(1)
         tf.config.threading.set_intra_op_parallelism_threads(1)
-        X, y = self.preprocessing(train_dataset)
         log_ratio = Sequential(
             [Dense(self.layers_dims[0], input_dim=X.shape[1], activation='relu')]
             +[Dense(x, activation="relu") for x in self.layers_dims[1:]]
@@ -60,16 +55,10 @@ class SimpleNeuralNetwork(BasicModel):
         self.model, XX, YY = self.nn_creation(x_p, x_q, log_ratio_p, log_ratio_q, X, y)
         hist = self.model.fit(x=XX, y=YY, steps_per_epoch=self.steps_per_epoch, epochs=self.epochs, verbose=0)
 
-    def model_predict(self, test_dataset):
-        X, y = self.preprocessing(test_dataset)
-        preds = self.nn_prediction(X, y)
-        predicted_ratings = create_scores(preds, test_dataset)
-        return predicted_ratings
-
-    def nn_creation(self, x_p, x_q, log_ratio_p, log_ratio_q, X, y):
+    def model_predict_proba(self, X):
         raise NotImplemented
 
-    def nn_prediction(self, X, y):
+    def nn_creation(self, x_p, x_q, log_ratio_p, log_ratio_q, X, y):
         raise NotImplemented
 
 class SimpleBinaryClassifier(SimpleNeuralNetwork):
@@ -101,8 +90,8 @@ class SimpleBinaryClassifier(SimpleNeuralNetwork):
             YY[0] = tf.ones(np.sum(y==1)+n)
         return model, XX, YY
 
-    def nn_prediction(self, X, y):
+    def model_predict_proba(self, X):
         p_pred, q_pred = self.model.predict(x=[X, X])
         preds = np.concatenate((tf.nn.sigmoid(p_pred).numpy(), tf.nn.sigmoid(q_pred).numpy()), axis=1)
-        return preds.max(axis=1)
+        return preds[:,1]
         

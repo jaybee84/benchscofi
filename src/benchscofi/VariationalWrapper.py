@@ -1,7 +1,6 @@
 #coding: utf-8
 
-from stanscofi.models import BasicModel, create_scores
-from stanscofi.preprocessing import preprocessing_routine
+from stanscofi.models import BasicModel
 import numpy as np
 import torch
 from torch import nn
@@ -15,16 +14,8 @@ class VariationalWrapper(BasicModel):
     def __init__(self, params=None):
         params = params if (params is not None) else self.default_parameters()
         super(VariationalWrapper, self).__init__(params)
-        self.random_state = params["random_state"]
         self.name = "VariationalWrapper"
-        self.EMBEDDING_SIZE = params["EMBEDDING_SIZE"]
-        self.N_EPOCHS = params["N_EPOCHS"]
-        self.DISPLAY_EPOCH_EVERY = params["DISPLAY_EPOCH_EVERY"]
-        self.BATCH_SIZE = params["BATCH_SIZE"]
-        self.LEARNING_RATE = params["LEARNING_RATE"]
-        self.N_VARIATIONAL_SAMPLES = params["N_VARIATIONAL_SAMPLES"]
-        self.optimizer = params.get("optimizer", "Adam")
-        self.use_masked_dataset = True
+        self.model = None
 
     def default_parameters(self):
         params = {
@@ -36,28 +27,27 @@ class VariationalWrapper(BasicModel):
             "EMBEDDING_SIZE" : 3,
             "N_VARIATIONAL_SAMPLES" : 1,
             "optimizer": "Adam",
+            "random_state": 1234,
         }
-        params.update({"random_state": 1354, "decision_threshold": 1})
         return params
 
-    def preprocessing(self, dataset):
+    def preprocessing(self, dataset, is_training=True):
         N, M = len(dataset.user_list), len(dataset.item_list)
         y = np.asarray(np.ravel(dataset.ratings_mat), dtype=np.float64)
         ## Ratings between 0 and 1: -1 -> 0, 0 -> 0.5, 1 -> 1
         y[y==0] = 0.5
         y[y==-1] = 0.
         X =  np.asarray(np.zeros((y.shape[0], N+M)), dtype=np.float64)
-        ids = np.argwhere(np.ones(dataset.ratings_mat.shape))
+        ids = np.argwhere(np.ones(dataset.ratings.shape))
         for x in range(y.shape[0]):
             X[x,ids[x,1]] = 1.
             X[x,ids[x,0]+N] = 1.
-        return torch.LongTensor(X), torch.LongTensor(y), N, M
+        return [torch.LongTensor(X), torch.LongTensor(y), N, M] if (is_training) else [torch.LongTensor(X)]
 
     ## source: https://raw.githubusercontent.com/jilljenn/vae/1d7f09af3bcaebfc5d8fa8cc18033d8bb8ca19bc/vfm-torch.py
-    def fit(self, train_dataset):
+    def model_fit(self, X, y, N, M):
         torch.manual_seed(self.random_state)
-        np.random.seed(self.random_state) 
-        X, y, N, M = self.preprocessing(train_dataset)
+        np.random.seed(self.random_state)
         torch_dataset = torch.utils.data.TensorDataset(X, y)
         nb_samples = len(y)
         train_rmse = train_auc = train_map = 0.
@@ -122,9 +112,7 @@ class VariationalWrapper(BasicModel):
                 # print('bias max abs', self.model.bias_params.weight.abs().max())
                 # print('entity max abs', self.model.entity_params.weight.abs().max())
 
-    def model_predict(self, test_dataset):
-        X, _, _, _ = self.preprocessing(test_dataset)
+    def model_predict_proba(self, X):
         outputs, _, _, _ = self.model(X)
         y_pred = outputs.mean.squeeze().detach().numpy()
-        scores = create_scores(y_pred, test_dataset)
-        return scores
+        return y_pred

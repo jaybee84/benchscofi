@@ -23,7 +23,7 @@ setup(name=NAME,
     package_dir={'':"src"},
     python_requires='>=3.8.5',
     install_requires=[
-        "stanscofi>=1.1",
+        "stanscofi>=2.0.0",
         "tensorflow>=2.8.0",
         "protobuf==3.20.*",
         "pulearn>=0.0.7",

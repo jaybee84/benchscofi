@@ -1,8 +1,5 @@
 #coding:utf-8
 
-from stanscofi.validation import compute_metrics
-import stanscofi.preprocessing
-from scipy.stats import norm, multivariate_normal
 from scipy.optimize import minimize, minimize_scalar
 from functools import reduce
 
@@ -48,12 +45,12 @@ def generate_Censoring_dataset(pi=0.3,c=0.3,N=100,nfeatures=50,mean=0.5,std=1,ex
     ratings_mat[:NPos,:] *= NlabPos.reshape((NPos, Nsqrt)) ## hide some of the positive
     ratings_mat[NPos:,:] = 0 ## hide all negative
     ## Input to stanscofi
-    user_list, item_list, feature_list = range(Nsqrt), range(Nsqrt), range(nfeatures//2)
+    user_list, item_list, feature_list = [list(map(str,x)) for x in [range(Nsqrt), range(Nsqrt), range(nfeatures//2)]]
     ratings_mat = pd.DataFrame(ratings_mat, columns=user_list, index=item_list).astype(int)
     labels_mat = pd.DataFrame(labels_mat, columns=user_list, index=item_list).astype(int)
     users = pd.DataFrame(users, index=feature_list, columns=user_list)
     items = pd.DataFrame(items, index=feature_list, columns=item_list)
-    return {"ratings_mat": ratings_mat, "users": users, "items": items}, labels_mat
+    return {"ratings": ratings_mat, "users": users, "items": items}, labels_mat
 
 ## N: total number of datapoints
 ## nfeatures: number of features
@@ -100,12 +97,12 @@ def generate_CaseControl_dataset(N=100,nfeatures=50,pi=0.3,sparsity=0.01,imbalan
     select_neg = select_neg.reshape((NNeg, Nsqrt))
     ratings_mat[NPos:,:] = select_neg
     ## Input to stanscofi
-    user_list, item_list, feature_list = range(Nsqrt), range(Nsqrt), range(nfeatures//2)
+    user_list, item_list, feature_list = [list(map(str,x)) for x in [range(Nsqrt), range(Nsqrt), range(nfeatures//2)]]
     ratings_mat = pd.DataFrame(ratings_mat, columns=user_list, index=item_list).astype(int)
     labels_mat = pd.DataFrame(labels_mat, columns=user_list, index=item_list).astype(int)
     users = pd.DataFrame(users, index=feature_list, columns=user_list)
     items = pd.DataFrame(items, index=feature_list, columns=item_list)
-    return {"ratings_mat": ratings_mat, "users": users, "items": items}, labels_mat
+    return {"ratings": ratings_mat, "users": users, "items": items}, labels_mat
 
 ## Charles Elkan and Keith Noto. Learning classifiers from only positive and unlabeled data. In Proceedings of the 14th ACM SIGKDD international conference on Knowledge discovery and data mining, pages 213–220, 2008.
 def data_aided_estimation(scores_all, true_all, estimator_type=[1,2,3][0]): 
@@ -178,37 +175,36 @@ def roc_aided_estimation(scores_all, true_all, regression_type=[1,2][0]):
 
 ## https://proceedings.mlr.press/v45/Christoffel15.pdf (L1-Distance)
 ## https://arxiv.org/pdf/1206.4677.pdf (Pearson)
-## TEST
-def divergence_aided_estimation(val_dataset, preprocessing_str, lmb=1., sigma=1., divergence_type=["L1-distance","Pearson"][0]):
+def divergence_aided_estimation(X, y, lmb=1, sigma=1., divergence_type=["L1-distance","Pearson"][0]):
     assert divergence_type in ["L1-distance", "Pearson"]
-    res = eval("stanscofi.preprocessing."+preprocessing_str)(val_dataset)
-    X, y = res[0], res[1]
+    from scipy.stats import multivariate_normal
+    from scipy.spatial.distance import cdist
     pos_x = (y==1).astype(int)
     unl_x = (y<1).astype(int) # (y==0).astype(int)
-    #basis = [multivariate_normal(mean=X[l,:], cov=sigma**2).pdf for l in range(X.shape[0])]
-    basis = [lambda x : 1]+[lambda x: np.exp(-np.linalg.norm(x-X[l,:],2)**2/(2*sigma**2)) for l in range(X.shape[0])]
+    basis_mat = np.exp(-cdist(X,X,metric='euclidean')/(2*sigma**2))
     if (divergence_type=="L1-distance"):
         def approx_div(pi):
-            def beta_l(l):
-                b_l = pi/np.sum(unl_x)*np.sum([basis[l](X[i,:]) for i in range(X.shape[0]) if (unl_x[i]==1)]) ## shape 1x1
-                b_l -= 1/np.sum(pos_x)*np.sum([basis[l](X[i,:]) for i in range(X.shape[0]) if (pos_x[i]==1)]) ## shape 1x1
-                #b_l = np.sum([(pi/np.sum(unl_x) if (unl_x[i]==1) else -1/np.sum(pos_x))*basis[l](X[i,:]) for i in range(X.shape[0])])
-                return b_l
-            betas = np.array([beta_l(l) for l in range(len(basis))]) ## shape |basis|x1
-            betas_ = np.concatenate((betas.reshape((betas.shape[0],1)), np.zeros((betas.shape[0],1))), axis=1).max(axis=1) ## shape |basis|x1
-            return 1/lmb*betas_.dot(betas)-pi+1 ## shape 1x1
+            betas = [pi/np.sum(pos_x)*basis_mat[l,pos_x].sum() if (pos_x.sum()>0) else 0 for l in range(basis_mat.shape[0])]
+            betas = [betas[l]-(1/np.sum(unl_x)*basis_mat[l,unl_x].sum() if (unl_x.sum()>0) else 0) for l in range(basis_mat.shape[0])]
+            return (1/lmb)*np.sum([max(0,b)*b for b in betas])-pi+1
+        #import matplotlib.pyplot as plt
+        #plt.figure(figsize=(2,2))
+        #pi_ls = [0.1*p for p in range(0,10)]
+        #plt.plot(pi_ls, [approx_div(p) for p in pi_ls], "b-")
+        #plt.title("penL1(pi) curve")
+        #plt.show()
+        #plt.close()
     else:
+        R1 = np.zeros((1,basis_mat.shape[0]))
+        R3 = np.eye(basis_mat.shape[0])
+        R = np.concatenate((np.column_stack((0,R1)), np.column_stack((R1.T, R3))), axis=0)
+        H = np.array([1/np.sum(x)*np.array([1]+[np.sum([basis_mat[l,i] for i in range(basis_mat.shape[0]) if (x[i])]) for l in range(basis_mat.shape[0])]).T for x in [unl_x, pos_x]]).T
+        basis_mat = np.concatenate((np.ones((1,basis_mat.shape[1])), basis_mat), axis=0)
+        basis_mat = np.concatenate((np.ones((1,basis_mat.shape[0])).T, basis_mat), axis=1)
+        G = (1/basis_mat.shape[0])*np.sum([basis_mat[l,:].reshape((1,-1)).T.dot(basis_mat[l,:].reshape((1,-1))) for l in range(basis_mat.shape[0])], axis=1)
         def approx_div(pi):
-            theta = np.array([pi, 1-pi]) ## shape 2x1
-            phi = lambda x : np.array([b(x) for b in basis]) ## shape |basis|x1
-            H = 1/np.sum(pos_x)*np.sum([phi(X[i,:]) for i in range(X.shape[0]) if (pos_x[i]==1)], axis=1) ## shape (d-1)x1 (X of shape (|basis|-1)xd)
-            R = np.concatenate((np.eye(len(basis)), np.zeros((1,len(basis)))), axis=0) ## shape (|basis|+1)x(|basis|+1)
-            R = np.concatenate((np.zeros((len(basis)+1,1)), R), axis=1) 
-            G = 1/np.sum(unl_x)*reduce(lambda x,y : x+y, [phi(X[i,:].T).dot(phi(X[i,:])) for i in range(X.shape[0]) if (unl_x[i]==1)]) ## shape dxd
-            return -0.5*theta.T.dot(H.T).dot(np.linalg.pinv(G+lmb*R)).dot(G).dot(np.linalg.pinv(G+lmb*R)).dot(H.dot(theta))+theta.T.dot(H.T).dot(np.linalg.pinv(G+lmb*R)).dot(H.dot(theta))-0.5 ## H = shape = theta
-    #res = minimize_scalar(approx_div, bounds=(0, 1), method='bounded')
-    #return res.x
-    ## Grid search
-    interval = [0.1*x for x in range(10)]
-    values = [approx_div(pi) for pi in interval]
-    return interval[np.argmin(values)]
+            theta = np.array([1-pi, pi]).T
+            GlR = np.linalg.pinv(G+lmb*R)
+            return -0.5*theta.dot(H.T).dot(GlR).dot(G).dot(GlR).dot(H.dot(theta.T))+theta.dot(H.T).dot(GlR).dot(H.dot(theta.T))-0.5
+    res = minimize_scalar(approx_div, bounds=(0, 1), method='bounded')
+    return res.x

@@ -15,7 +15,6 @@ class SimplePULearning(SimpleNeuralNetwork):
         params = params if (params is not None) else self.default_parameters()
         super(SimplePULearning, self).__init__(params)
         self.name = "SimplePULearning"
-        self.use_masked_dataset = False
 
     def default_parameters(self):
         params = super(SimplePULearning, self).default_parameters()
@@ -43,7 +42,7 @@ class SimplePULearning(SimpleNeuralNetwork):
         ).astype(np.int32)
         return model, [XX, YY], YY
 
-    def nn_prediction(self, X, y):
+    def nn_prediction(self, X):
         XX = X
         YY = tf.zeros(X.shape[0])
         preds = self.model.predict(x=[XX,YY])

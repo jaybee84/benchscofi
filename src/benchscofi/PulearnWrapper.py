@@ -1,7 +1,7 @@
 #coding: utf-8
 
-from stanscofi.models import BasicModel, create_scores
-from stanscofi.preprocessing import preprocessing_routine
+from stanscofi.models import BasicModel
+from stanscofi.preprocessing import preprocessing_XY
 import numpy as np
 
  ## UNLABELED ARE -1 POSITIVE ARE 1
@@ -10,51 +10,38 @@ import pulearn
 class PulearnWrapper(BasicModel):
     def __init__(self, params=None):
         params = params if (params is not None) else self.default_parameters()
-        assert all([x in params for x in ["random_state", "classifier", "classifier_params", "preprocessing", "subset"]])
-        assert params["classifier"] in ["ElkanotoPuClassifier","WeightedElkanotoPuClassifier","BaggingPuClassifier"]
-        self.classifier = params["classifier"]
-        self.random_state = params["random_state"]
-        self.classifier_params = params["classifier_params"]
-        self.subset = params.get("subset")
-        self.preprocessing_str = params["preprocessing"] 
         super(PulearnWrapper, self).__init__(params)
+        assert self.classifier in ["ElkanotoPuClassifier","WeightedElkanotoPuClassifier","BaggingPuClassifier"]
         self.scalerS, self.scalerP, self.filter = None, None, None
         self.name = self.classifier
-        self.use_masked_dataset = False
+        self.estimator = eval("pulearn."+self.classifier)(**self.classifier_params)
 
     def default_parameters(self):
         from sklearn.svm import SVC
         params = {
-            "decision_threshold": 1, 
             "classifier_params": {
                 "estimator": SVC(C=10, kernel='rbf', gamma=0.4, probability=True),
                 "hold_out_ratio": 0.2,
                 #"labeled":10, "unlabeled":20, "n_estimators":15,
             },
             "classifier": "ElkanotoPuClassifier",
-            "preprocessing": "meanimputation_standardize",
+            "preprocessing_str": "meanimputation_standardize",
             "subset": None,
-            "random_state": 124565,
         }
         return params
 
-    def preprocessing(self, dataset):
-        X, y, scalerS, scalerP, filter_ = preprocessing_routine(dataset, self.preprocessing_str, subset_=self.subset, filter_=self.filter, scalerS=self.scalerS, scalerP=self.scalerP, inf=2, njobs=1)
+    def preprocessing(self, dataset, is_training=True):
+        X, y, scalerS, scalerP, filter_ = preprocessing_XY(dataset, self.preprocessing_str, subset_=self.subset, filter_=self.filter, scalerS=self.scalerS, scalerP=self.scalerP, inf=2, njobs=1)
         self.filter = filter_
         self.scalerS = scalerS
         self.scalerP = scalerP
         ## Unlabeled samples are -1 in pulearn
         y[y<1] = -1
-        return X, y
+        return [X, y] if (is_training) else [X]
         
-    def fit(self, train_dataset):
-        np.random.seed(self.random_state)
-        self.model = eval("pulearn."+self.classifier)(**self.classifier_params)
-        X, y = self.preprocessing(train_dataset)
-        self.model.fit(X, y)
+    def model_fit(self, X, y):
+        self.estimator.fit(X, y)
 
-    def model_predict(self, test_dataset):
-        X, _ = self.preprocessing(test_dataset)
-        preds = self.model.predict_proba(X)
-        scores = create_scores(preds, test_dataset)
+    def model_predict_proba(self, X):
+        preds = self.estimator.predict_proba(X)
         return scores
