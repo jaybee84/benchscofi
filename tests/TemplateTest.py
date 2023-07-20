@@ -1,11 +1,12 @@
 import unittest
 import numpy as np
 import random
-import sys
+from subprocess import Popen
 
 import stanscofi.datasets
 import stanscofi.training_testing
 import stanscofi.validation
+import stanscofi.utils
 
 import sys ##
 sys.path.insert(0, "../src/") ##
@@ -21,28 +22,33 @@ class TestModel(unittest.TestCase):
         dataset = stanscofi.datasets.Dataset(**data_args)
         return dataset
 
+    ## Load existing dataset
+    def load_dataset(self, dataset_name):
+        Popen("mkdir -p ../datasets/".split(" "))
+        dataset = stanscofi.datasets.Dataset(**stanscofi.utils.load_dataset(dataset_name, "../datasets/"))
+        return dataset
+
     ## Test whether basic functions of the model work
     def test_model(self): 
         random_seed = 124565 
+        test_size = 0.3
         np.random.seed(random_seed)
         random.seed(random_seed)
-        dataset = self.generate_dataset(random_seed)
-        test_size = 0.3
-        train_set, test_set, _, _ = stanscofi.training_testing.traintest_validation_split(dataset, test_size, early_stop=2, metric="euclidean", disjoint_users=False, random_state=random_seed, verbose=False, print_dists=False)
-        model = benchscofi.XXXXXX.XXXXXX()
-        if (model.use_masked_dataset):
-            train_dataset = dataset.mask_dataset(train_set)
-            test_dataset = dataset.mask_dataset(test_set)
+        if ("YYYYYYYYYYY"==("Y"*11)):
+            dataset = self.generate_dataset(random_seed)
         else:
-            train_dataset = dataset.get_folds(train_set)
-            test_dataset = dataset.get_folds(test_set)
+            dataset = self.load_dataset("YYYYYYYYYYY")
+        (train_folds, test_folds), _ = stanscofi.training_testing.random_simple_split(dataset, test_size, metric="euclidean", random_state=random_seed)
+        model = benchscofi.XXXXXX.XXXXXX()
+        train_dataset = dataset.subset(train_folds)
+        test_dataset = dataset.subset(test_folds)
         model.fit(train_dataset)
-        scores = model.predict(test_dataset)
+        scores = model.predict_proba(test_dataset)
         print("\n\n"+('_'*27)+"\nMODEL "+model.name)
         model.print_scores(scores)
-        predictions = model.classify(scores)
+        predictions = model.predict(scores, threshold=0)
         model.print_classification(predictions)
-        metrics, _ = stanscofi.validation.compute_metrics(scores, predictions, test_dataset, beta=1, verbose=False)
+        metrics, _ = stanscofi.validation.compute_metrics(scores, predictions, test_dataset, metrics=["AUC"], k=5, beta=1, verbose=False)
         print(metrics)
         print(("_"*27)+"\n\n")
         ## if it ends without any error, it is a success

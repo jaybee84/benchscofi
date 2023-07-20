@@ -17,7 +17,7 @@ class FastaiCollabWrapper(BasicModel):
 
     def default_parameters(self):
         params = {
-            "n_iterations": 3, 
+            "n_iterations": 10, 
             "n_factors" :20,
             "weight_decay" : 0.1,
             "learning_rate" : 5e-3,
@@ -26,7 +26,8 @@ class FastaiCollabWrapper(BasicModel):
         return params
 
     def preprocessing(self, dataset, is_training=True):
-        df = pd.DataFrame(dataset.ratings, index=range(dataset.ratings.shape[0]), columns=["disease","drug","rating"]).astype(int)
+        mat = np.column_stack((dataset.folds.col, dataset.folds.row, dataset.ratings.toarray()[dataset.folds.row, dataset.folds.col].ravel()))
+        df = pd.DataFrame(mat, index=range(mat.shape[0]), columns=["disease","drug","rating"]).astype(int)
         return [df]
     
     def model_fit(self, df):

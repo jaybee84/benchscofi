@@ -3,6 +3,7 @@
 ## Minimal example of model in stanscofi
 
 from stanscofi.models import BasicModel
+import numpy as np
 
 class Constant(BasicModel):
     '''

@@ -11,7 +11,7 @@ class ALSWR(BasicModel):
         params = params if (params is not None) else self.default_parameters()
         super(ALSWR, self).__init__(params)
         self.name = "ALSWR"
-        self.model = AlternatingLeastSquares.ALSWR(**{(k if (k!="random_state") else "seed"):params[k] for k in params if (k not in ["decision_threshold"])})
+        self.model = AlternatingLeastSquares.ALSWR(**{(k if (k!="random_state") else "seed"):params[k] for k in params})
 
     def default_parameters(self):
         params = AlternatingLeastSquares.alswr_params
@@ -20,7 +20,7 @@ class ALSWR(BasicModel):
 
     def preprocessing(self, dataset, is_training=True):
         ## users x items
-        ratings = csr_matrix((np.array(dataset.ratings[:,2], dtype=np.float64), (dataset.ratings[:,0], dataset.ratings[:,0])), shape=(dataset.ratings_mat.shape[1],dataset.ratings_mat.shape[0]))
+        ratings = csr_matrix((dataset.ratings.data, (dataset.ratings.col, dataset.ratings.row)), shape=dataset.ratings.T.shape)
         return [ratings]
         
     def model_fit(self, X_train):
@@ -28,4 +28,5 @@ class ALSWR(BasicModel):
         self.model.fit(X_train)
 
     def model_predict_proba(self, X_test):
-        return self.model.predict()
+        preds = self.model.predict().T
+        return preds
