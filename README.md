@@ -6,21 +6,23 @@ This repository is a part of the EU-funded [RECeSS project](https://recess-eu-pr
 
 ## Benchmark AUC values (default parameters, single random training/testing set split) [updated 7/20/23]
 
-These values (rounded to the closest 3rd decimal place) can be obtained by the following commands 
+These values (rounded to the closest 3rd decimal place) can be reproduced using the following command
 
 ```bash
 cd tests/ && python3 -m test_models <algorithm> <dataset or empty if using the synthetic dataset>
 ```
 
+:no_entry: represent failure to train or to predict. ``N/A`` have not been tested yet.
+
   Algorithm                | Synthetic*    | TRANSCRIPT    [a] | Gottlieb [b]  | Cdataset [c] | PREDICT    [d] | LRSSL [e] | 
 -------------------------- | ------------- | ----------------- | ------------- | ------------ | -------------- | --------- |
 PMF [1]                    |  0.974        |  0.549            |  0.561        |  0.555       |  0.568         | 0.546     |
 PulearnWrapper [2]         |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
-ALSWR [3]                  |  0.745        |  0.567            |  0.582        |  0.608       | 0.621          | 0.604     |
-FastaiCollabWrapper [4]    |  0.503        |  0.639            |  0.516        |  0.562       | 0.501          | 0.514     |
+ALSWR [3]                  |  0.745        |  0.567            |  0.582        |  0.608       |  0.621         | 0.604     |
+FastaiCollabWrapper [4]    |  0.503        |  0.639            |  0.516        |  0.562       |  0.501         | 0.514     |
 SimplePULearning [5]       |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
 SimpleBinaryClassifier [6] |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
-NIMCGCN [7]                |  0.500        |  0.500            |  0.500        |  0.500       |  N/A           | N/A       |
+NIMCGCN [7]                |  0.500        |  0.500            |  0.500        |  0.500       |  :no_entry:    | 0.500     |
 FFMWrapper [8]             |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
 VariationalWrapper [9]     |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
 DRRS [10]                  |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
@@ -38,28 +40,55 @@ mean=0.5 #mean for the distribution of positive pairs, resp. -mean for the negat
 std=1 #standard deviation for the distribution of positive and negative pairs
 ```
 
-[a] N/A
-[b] N/A
-[c] N/A
-[d] N/A
-[e] N/A
+---
 
-[1] N/A
-[2] N/A
-[3] N/A
-[4] N/A
-[5] N/A
-[6] N/A
-[7] N/A 
-[8] N/A
-[9] N/A
-[10] N/A
-[11] N/A
-[12] N/A
-[13] N/A
-[14] N/A
+[a] Réda, Clémence. (2023). TRANSCRIPT drug repurposing dataset (2.0.0) [Data set]. Zenodo. doi:10.5281/zenodo.7982976
+
+[b] Gottlieb, A., Stein, G. Y., Ruppin, E., & Sharan, R. (2011). PREDICT: a method for inferring novel drug indications with application to personalized medicine. Molecular systems biology, 7(1), 496.
+
+[c] Luo, H., Li, M., Wang, S., Liu, Q., Li, Y., & Wang, J. (2018). Computational drug repositioning using low-rank matrix approximation and randomized algorithms. Bioinformatics, 34(11), 1904-1912.
+
+[d] Réda, Clémence. (2023). PREDICT drug repurposing dataset (2.0.1) [Data set]. Zenodo. doi:10.5281/zenodo.7983090
+
+[e] Liang, X., Zhang, P., Yan, L., Fu, Y., Peng, F., Qu, L., … & Chen, Z. (2017). LRSSL: predict and interpret drug–disease associations based on data integration using sparse subspace learning. Bioinformatics, 33(8), 1187-1196.
+
+---
+
+[1] Probabilistic Matrix Factorization (using Bayesian Pairwise Ranking) implemented at [this page](https://ethen8181.github.io/machine-learning/recsys/4_bpr.html).
+
+[2] Elkan and Noto's classifier based on SVMs (package [pulearn](https://pulearn.github.io/pulearn/) and [paper](https://cseweb.ucsd.edu/~elkan/posonly.pdf)).
+
+[3] Alternating Least Square Matrix Factorization algorithm implemented at [this page](https://ethen8181.github.io/machine-learning/recsys/2_implicit.html#Implementation).
+
+[4] Collaborative filtering approach ``collab_learner`` implemented by package [fast.ai](https://docs.fast.ai/collab.html).
+
+[5] Customizable neural network architecture with positive-unlabeled risk.
+ 
+[6] Customizable neural network architecture for positive-negative learning.
+
+[7] Jin Li, Sai Zhang, Tao Liu, Chenxi Ning, Zhuoxuan Zhang and Wei Zhou. Neural inductive matrix completion with graph convolutional networks for miRNA-disease association prediction. Bioinformatics, Volume 36, Issue 8, 15 April 2020, Pages 2538–2546. doi: 10.1093/bioinformatics/btz965. ([implementation](https://github.com/ljatynu/NIMCGCN)).
+
+[8] Field-aware Factorization Machine (package [pyFFM](https://pypi.org/project/pyFFM/)).
+
+[9] Vie, J. J., Rigaux, T., & Kashima, H. (2022, December). Variational Factorization Machines for Preference Elicitation in Large-Scale Recommender Systems. In 2022 IEEE International Conference on Big Data (Big Data) (pp. 5607-5614). IEEE. ([pytorch implementation](https://github.com/jilljenn/vae)).
+
+[10] Luo, H., Li, M., Wang, S., Liu, Q., Li, Y., & Wang, J. (2018). Computational drug repositioning using low-rank matrix approximation and randomized algorithms. Bioinformatics, 34(11), 1904-1912. ([download](http://bioinformatics.csu.edu.cn/resources/softs/DrugRepositioning/DRRS/index.html)).
+
+[11] Meng, Y., Jin, M., Tang, X., & Xu, J. (2021). Drug repositioning based on similarity constrained probabilistic matrix factorization: COVID-19 as a case study. Applied soft computing, 103, 107135. ([implementation](https://github.com/luckymengmeng/SCPMF)).
+
+[12] Yang, M., Luo, H., Li, Y., & Wang, J. (2019). Drug repositioning based on bounded nuclear norm regularization. Bioinformatics, 35(14), i455-i463. ([implementation](https://github.com/BioinformaticsCSU/BNNR)).
+
+[13] Liang, X., Zhang, P., Yan, L., Fu, Y., Peng, F., Qu, L., ... & Chen, Z. (2017). LRSSL: predict and interpret drug–disease associations based on data integration using sparse subspace learning. Bioinformatics, 33(8), 1187-1196. ([implementation](https://github.com/LiangXujun/LRSSL)).
+
+[14] Luo, H., Wang, J., Li, M., Luo, J., Peng, X., Wu, F. X., & Pan, Y. (2016). Drug repositioning based on comprehensive similarity measures and bi-random walk algorithm. Bioinformatics, 32(17), 2664-2671. ([implementation](https://github.com/bioinfomaticsCSU/MBiRW)).
+
+---
 
 ## Statement of need
+
+As of 2022, current drug development pipelines last around 10 years, costing $2billion in average, while drug commercialization failure rates go up to 90%. These issues can be mitigated by drug repurposing, where chemical compounds are screened for new therapeutic indications in a systematic fashion. In prior works, this approach has been implemented through collaborative filtering. This semi-supervised learning framework leverages known drug-disease matchings in order to recommend new ones.
+
+There is no standard pipeline to train, validate and compare collaborative filtering-based repurposing methods, which considerably limits the impact of this research field. In **benchscofi**, the estimated improvement over the state-of-the-art (implemented in the package) can be measured through adequate and quantitative metrics tailored to the problem of drug repurposing across a large set of publicly available drug repurposing datasets.
 
 ## Installation
 
@@ -67,19 +96,23 @@ std=1 #standard deviation for the distribution of positive and negative pairs
 
 #### R
 
-Or ignore the following algorithms: ...
-
-#### MATLAB/Octave
-
-Or ignore the following algorithms: ...
+Install R based on your distribution, or do not use the following algorithms: ``LRSSL``. Check if R is properly installed using the following command
 
 ```bash
-apt-get install -y octave
+R -q -e "print('R is installed and running.')"
+```
+
+#### MATLAB / Octave
+
+Install MATLAB or Octave (free) based on your distribution, or do not use the following algorithms: ``BNNR``, ``SCPMF``, ``MBiRW``. Check if Octave is properly installed using the following command
+
+```bash
+octave --eval "'octave is installed!'"
 ```
 
 #### MATLAB compiler
 
-Or ignore the following algorithms: ...
+Install a MATLAB compiler (version 2012b) as follow, or do not use algorithm ``DRRS``.
 
 ```bash
 sudo apt-get install -y libxmu-dev # libXmu.so.6 is required
@@ -93,21 +126,15 @@ chown -R kali /usr/local/MATLAB/
 ./install -mode silent -agreeToLicense  yes
 ```
 
-#### Others (Elliot, FFM, libFM)
-
-Or ignore the following algorithms: ...
-
-```bash
-bash drafts/install_dependencies.sh
-```
-
 ### 2. Install CUDA (for tensorflow and pytorch-based algorithms)
+
+TODO
 
 Or ignore the following algorithms: ...
 
 Install [CUDA](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html)
 
-### 3. Install the latest release
+### 3. Install the latest **benchscofi** release
 
 Using ``pip`` (package hosted on PyPI) or ``conda`` (package hosted on Anaconda.org)
 
@@ -118,6 +145,8 @@ conda install -c recess benchscofi # or conda
 ```
 
 ## Example usage
+
+Further documentation can be found at [the following page](https://recess-eu-project.github.io/benchscofi) [TODO].
 
 ### 0. Environment
 
@@ -148,7 +177,7 @@ import benchscofi
 
 - Check out notebook ``Class prior estimation.ipynb`` to see tests of the class prior estimation methods on synthetic and real-life datasets.
 
-- Check out notebook ``RankingMetrics.ipynb`` for example of training and prediction, along with the definitions of ranking metrics present in **stanscofi**.
+- Check out notebook ``RankingMetrics.ipynb`` for example of training with cross-validation and evaluation of the model predictions, along with the definitions of ranking metrics present in **stanscofi**. It also runs [*libmf*](https://github.com/cjlin1/libmf/).
 
 - ... the list of notebooks is growing!
 
@@ -170,12 +199,12 @@ This repository is under an [OSI-approved](https://opensource.org/licenses/) [MI
 
 You are more than welcome to add your own algorithm to the package!
 
-#### Add a novel implementation / algorithm
+### 1. Add a novel implementation / algorithm
 
 Add a new Python file (extension .py) in ``src/benchscofi/`` named ``<model>`` (where ``model`` is the name of the algorithm), which contains a subclass of ``stanscofi.models.BasicModel`` **which has the same name as your Python file**. At least implement methods ``preprocessing``, ``fit``, ``model_predict``, and a default set of parameters (which is used for testing purposes). Please have a look at the placeholder file ``Constant.py`` which implements a classification algorithm which labels all datapoints as positive. 
 
 It is highly recommended to provide a proper documentation of your class, along with its methods.
 
-#### Rules for contributors
+### 2. Rules for contributors
 
 [Pull requests](https://github.com/RECeSS-EU-Project/benchscofi/pulls) and [issue flagging](https://github.com/RECeSS-EU-Project/benchscofi/issues) are welcome, and can be made through the GitHub interface. Support can be provided by reaching out to ``recess-project[at]proton.me``. However, please note that contributors and users must abide by the [Code of Conduct](https://github.com/RECeSS-EU-Project/benchscofi/blob/master/CODE%20OF%20CONDUCT.md).
