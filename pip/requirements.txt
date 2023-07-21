@@ -1,5 +1,5 @@
 stanscofi>=2.0.0
-scikit-learn>=1.2.2
+## FAILURE tensorflow>=2.13.0
 tensorflow>=2.8.0
 protobuf==3.20.3
 pulearn>=0.0.7

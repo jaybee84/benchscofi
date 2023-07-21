@@ -19,8 +19,12 @@ class ALSWR(BasicModel):
         return params
 
     def preprocessing(self, dataset, is_training=True):
-        ## users x items
-        ratings = csr_matrix((dataset.ratings.data, (dataset.ratings.col, dataset.ratings.row)), shape=dataset.ratings.T.shape)
+        ## users x items: only 1's and -1's
+        if (is_training):
+            ratings = csr_matrix((dataset.ratings.data, (dataset.ratings.col, dataset.ratings.row)), shape=dataset.ratings.T.shape)
+        else:
+            ids = np.argwhere(np.ones(dataset.ratings.shape))
+            ratings = csr_matrix((dataset.ratings.toarray().ravel(), (ids[:,1].ravel(), ids[:,0].ravel())), shape=dataset.ratings.T.shape)
         return [ratings]
         
     def model_fit(self, X_train):

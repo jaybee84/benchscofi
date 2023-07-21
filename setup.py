@@ -24,7 +24,6 @@ setup(name=NAME,
     python_requires='>=3.8.5',
     install_requires=[
         "stanscofi>=2.0.0",
-        "scikit-learn>=1.2.2",
         "tensorflow>=2.8.0",
         "protobuf==3.20.3",
         "pulearn>=0.0.7",

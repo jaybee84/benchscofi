@@ -12,14 +12,14 @@ These values (rounded to the closest 3rd decimal place) can be reproduced using 
 cd tests/ && python3 -m test_models <algorithm> <dataset or empty if using the synthetic dataset>
 ```
 
-:no_entry: represent failure to train or to predict. ``N/A`` have not been tested yet.
+:no_entry:'s represent failure to train or to predict. ``N/A``'s have not been tested yet.
 
   Algorithm                | Synthetic*    | TRANSCRIPT    [a] | Gottlieb [b]  | Cdataset [c] | PREDICT    [d] | LRSSL [e] | 
 -------------------------- | ------------- | ----------------- | ------------- | ------------ | -------------- | --------- |
 PMF [1]                    |  0.974        |  0.549            |  0.561        |  0.555       |  0.568         | 0.546     |
-PulearnWrapper [2]         |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
-ALSWR [3]                  |  0.745        |  0.567            |  0.582        |  0.608       |  0.621         | 0.604     |
-FastaiCollabWrapper [4]    |  0.500        |  0.500            |  0.500        |  0.500       |  0.500         | 0.500     |
+PulearnWrapper [2]         |  0.500        |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
+ALSWR [3]                  |  0.755        |  0.567            |  0.582        |  0.608       |  0.621         | 0.604     |
+FastaiCollabWrapper [4]    |  0.500        |  0.493            |  0.500        |  0.500       |  0.501         | 0.500     |
 SimplePULearning [5]       |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
 SimpleBinaryClassifier [6] |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
 NIMCGCN [7]                |  0.500        |  0.500            |  0.500        |  0.500       |  :no_entry:    | 0.500     |
@@ -54,13 +54,19 @@ std=1 #standard deviation for the distribution of positive and negative pairs
 
 ---
 
-[1] Probabilistic Matrix Factorization (using Bayesian Pairwise Ranking) implemented at [this page](https://ethen8181.github.io/machine-learning/recsys/4_bpr.html).
+Tags are associated with each method. 
 
-[2] Elkan and Noto's classifier based on SVMs (package [pulearn](https://pulearn.github.io/pulearn/) and [paper](https://cseweb.ucsd.edu/~elkan/posonly.pdf)).
+- <featureless> means that the algorithm does not leverage the input of drug/disease features. 
 
-[3] Alternating Least Square Matrix Factorization algorithm implemented at [this page](https://ethen8181.github.io/machine-learning/recsys/2_implicit.html#Implementation).
+- <matrix_input> means that the algorithm considers as input a matrix of ratings (plus possibly matrices of drug/disease features), instead of considering as input (drug, disease) pairs.
 
-[4] Collaborative filtering approach ``collab_learner`` implemented by package [fast.ai](https://docs.fast.ai/collab.html).
+[1] Probabilistic Matrix Factorization (using Bayesian Pairwise Ranking) implemented at [this page](https://ethen8181.github.io/machine-learning/recsys/4_bpr.html). <featureless> <matrix_input>
+
+[2] Elkan and Noto's classifier based on SVMs (package [pulearn](https://pulearn.github.io/pulearn/) and [paper](https://cseweb.ucsd.edu/~elkan/posonly.pdf)). <featureless>
+
+[3] Alternating Least Square Matrix Factorization algorithm implemented at [this page](https://ethen8181.github.io/machine-learning/recsys/2_implicit.html#Implementation). <featureless> 
+
+[4] Collaborative filtering approach ``collab_learner`` implemented by package [fast.ai](https://docs.fast.ai/collab.html). <featureless>
 
 [5] Customizable neural network architecture with positive-unlabeled risk.
  
@@ -156,7 +162,7 @@ It is strongly advised to create a virtual environment using Conda (python>=3.8)
 conda create -n benchscofi_env python=3.8.5 -y
 conda activate benchscofi_env
 python3 -m pip install benchscofi ## or use the conda command above
-python3 -m pip uninstall werkzeug
+## TODO python3 -m pip uninstall werkzeug
 python3 -m pip install notebook>=6.5.4 markupsafe==2.0.1 ## packages for Jupyter notebook
 conda deactivate
 conda activate benchscofi_env

@@ -26,9 +26,16 @@ class FastaiCollabWrapper(BasicModel):
         return params
 
     def preprocessing(self, dataset, is_training=True):
-        mat = np.column_stack((dataset.folds.col, dataset.folds.row, dataset.ratings.toarray()[dataset.folds.row, dataset.folds.col].ravel()))
+        ## only consider known ratings
+        if (is_training):
+            mat = np.column_stack((dataset.ratings.col, dataset.ratings.row, dataset.ratings.data))
+            keep_ids = None
+        ## consider all ratings
+        else:
+            ids = np.argwhere(np.ones(dataset.ratings.shape))
+            mat = np.column_stack((ids[:,1].ravel(), ids[:,0].ravel(), dataset.ratings.toarray().ravel()))
+            keep_ids = dataset.folds.toarray().ravel()!=0
         df = pd.DataFrame(mat, index=range(mat.shape[0]), columns=["disease","drug","rating"]).astype(int)
-        keep_ids = df[["rating"]].values.flatten()>0
         return [df] if (is_training) else [df, keep_ids]
     
     def model_fit(self, df):
@@ -41,6 +48,4 @@ class FastaiCollabWrapper(BasicModel):
         ## https://docs.fast.ai/tutorial.tabular
         dl = self.model.dls.test_dl(df)
         preds = self.model.get_preds(dl=dl)[0].numpy().flatten()
-        scores = np.zeros(keep_ids.shape)
-        scores[keep_ids] = preds
-        return scores
+        return preds[keep_ids]

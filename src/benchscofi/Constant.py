@@ -56,7 +56,11 @@ class Constant(BasicModel):
 
     def preprocessing(self, dataset, is_training=True):
         '''
-        Preprocessing step, which is empty for this model 
+        Preprocessing step, which is empty for this model.
+        The general rule is that, for training:
+         - if the algorithm takes as input a matrix, then consider all ratings (y in {-1,0,1})
+         - if the algorithm takes as input a collection pairs (item, user), then consider only known ratings (y in {-1,1})
+        For testing/predicting, regardless of the type of input considered by the algorithm, consider all ratings (y in {-1,0,1})
 
         ...
 

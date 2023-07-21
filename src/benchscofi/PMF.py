@@ -19,6 +19,7 @@ class PMF(BasicModel):
         return params
 
     def preprocessing(self, dataset, is_training=True):
+        ## Use 0-1 ratings (matrix form)
         return [csr_matrix(dataset.ratings.toarray().T)]
         
     def model_fit(self, X):
