@@ -33,12 +33,14 @@ class FFMWrapper(BasicModel):
         self.scalerP = scalerP
         keep_ids = (y!=0)
         df = pd.DataFrame(np.concatenate((np.asarray(y[keep_ids]>0, dtype=int).reshape((np.sum(keep_ids),1)), X[keep_ids,:]), axis=1), index=range(np.sum(keep_ids)), columns=["click"]+list(map(str,range(X.shape[1]))))
-        return [df]
+        df = df.iloc[keep_ids,:]
+        return [df] if (is_training) else [df, keep_ids]
 
     def model_fit(self, df):
         self.model.train(df, label_name="click")
 
-    def model_predict_proba(self, df):
+    def model_predict_proba(self, df, keep_ids):
         preds = self.model.predict(df.drop(columns=["click"]))
-        print(preds)
-        return preds
+        scores = np.zeros(keep_ids.shape)
+        scores[keep_ids] = preds
+        return scores

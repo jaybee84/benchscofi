@@ -17,7 +17,7 @@ class FastaiCollabWrapper(BasicModel):
 
     def default_parameters(self):
         params = {
-            "n_iterations": 10, 
+            "n_iterations": 5, 
             "n_factors" :20,
             "weight_decay" : 0.1,
             "learning_rate" : 5e-3,
@@ -28,7 +28,8 @@ class FastaiCollabWrapper(BasicModel):
     def preprocessing(self, dataset, is_training=True):
         mat = np.column_stack((dataset.folds.col, dataset.folds.row, dataset.ratings.toarray()[dataset.folds.row, dataset.folds.col].ravel()))
         df = pd.DataFrame(mat, index=range(mat.shape[0]), columns=["disease","drug","rating"]).astype(int)
-        return [df]
+        keep_ids = df[["rating"]].values.flatten()>0
+        return [df] if (is_training) else [df, keep_ids]
     
     def model_fit(self, df):
         np.random.seed(self.random_state)
@@ -36,8 +37,10 @@ class FastaiCollabWrapper(BasicModel):
         self.model = collab_learner(data, n_factors=self.n_factors, use_nn=True, y_range=self.y_range, emb_szs=None)
         self.model.fit_one_cycle(self.n_iterations, self.learning_rate, wd=self.weight_decay)
     
-    def model_predict_proba(self, df):
+    def model_predict_proba(self, df, keep_ids):
         ## https://docs.fast.ai/tutorial.tabular
         dl = self.model.dls.test_dl(df)
         preds = self.model.get_preds(dl=dl)[0].numpy().flatten()
-        return preds
+        scores = np.zeros(keep_ids.shape)
+        scores[keep_ids] = preds
+        return scores

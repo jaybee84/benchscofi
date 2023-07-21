@@ -4,7 +4,7 @@
 
 This repository is a part of the EU-funded [RECeSS project](https://recess-eu-project.github.io) (#101102016), and hosts the implementations and / or wrappers to published implementations of collaborative filtering-based algorithms for easy benchmarking.
 
-## Benchmark AUC values (default parameters, single random training/testing set split) [updated 7/20/23]
+## Benchmark AUC values (default parameters, single random training/testing set split) [updated 7/21/23]
 
 These values (rounded to the closest 3rd decimal place) can be reproduced using the following command
 
@@ -19,7 +19,7 @@ cd tests/ && python3 -m test_models <algorithm> <dataset or empty if using the s
 PMF [1]                    |  0.974        |  0.549            |  0.561        |  0.555       |  0.568         | 0.546     |
 PulearnWrapper [2]         |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
 ALSWR [3]                  |  0.745        |  0.567            |  0.582        |  0.608       |  0.621         | 0.604     |
-FastaiCollabWrapper [4]    |  0.503        |  0.639            |  0.516        |  0.562       |  0.501         | 0.514     |
+FastaiCollabWrapper [4]    |  0.500        |  0.500            |  0.500        |  0.500       |  0.500         | 0.500     |
 SimplePULearning [5]       |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
 SimpleBinaryClassifier [6] |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
 NIMCGCN [7]                |  0.500        |  0.500            |  0.500        |  0.500       |  :no_entry:    | 0.500     |
