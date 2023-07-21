@@ -25,7 +25,7 @@ setup(name=NAME,
     install_requires=[
         "stanscofi>=2.0.0",
         "tensorflow>=2.8.0",
-        "protobuf==3.20.*",
+        "protobuf==3.9.*",
         "pulearn>=0.0.7",
         "torch>=2.0.1",
         "fastai>=2.7.12",
