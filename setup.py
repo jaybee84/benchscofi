@@ -35,6 +35,7 @@ setup(name=NAME,
         "pytorch-lightning<2.0.0",
         "torchmetrics",
         "numpy==1.19.4",
+        "scikit-learn==1.2.*",
     ],
     entry_points={},
 )
