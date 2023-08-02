@@ -4,7 +4,7 @@
 
 This repository is a part of the EU-funded [RECeSS project](https://recess-eu-project.github.io) (#101102016), and hosts the implementations and / or wrappers to published implementations of collaborative filtering-based algorithms for easy benchmarking.
 
-## Benchmark AUC values (default parameters, single random training/testing set split) [updated 7/21/23]
+## Benchmark average disease-wise and global AUC values (default parameters, single random training/testing set split) [updated 8/02/23]
 
 These values (rounded to the closest 3rd decimal place) can be reproduced using the following command
 
@@ -14,7 +14,7 @@ cd tests/ && python3 -m test_models <algorithm> <dataset or empty if using the s
 
 :no_entry:'s represent failure to train or to predict. ``N/A``'s have not been tested yet.
 
-  Algorithm                | Synthetic*    | TRANSCRIPT    [a] | Gottlieb [b]  | Cdataset [c] | PREDICT    [d] | LRSSL [e] | 
+  Algorithm  (row-wise)    | Synthetic*    | TRANSCRIPT    [a] | Gottlieb [b]  | Cdataset [c] | PREDICT    [d] | LRSSL [e] | 
 -------------------------- | ------------- | ----------------- | ------------- | ------------ | -------------- | --------- |
 PMF [1]                    |  0.974        |  0.549            |  0.561        |  0.555       |  0.568         | 0.546     |
 PulearnWrapper [2]         |  0.500        |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
@@ -25,11 +25,32 @@ SimpleBinaryClassifier [6] |  N/A          |  N/A              |  N/A          |
 NIMCGCN [7]                |  0.500        |  0.500            |  0.500        |  0.500       |  :no_entry:    | 0.500     |
 FFMWrapper [8]             |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
 VariationalWrapper [9]     |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
-DRRS [10]                  |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
+DRRS [10]                  |  :no_entry:   |  0.542            |  0.647        |  0.685       |  :no_entry:    | 0.752     |
 SCPMF [11]                 |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
-BNNR [12]                  |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
-LRSSL [13]                 |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
-MBiRW [14]                 |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
+BNNR [12]                  |  0.500        |  0.500            |  0.500        |  0.500       |  :no_entry:    | 0.500     |
+LRSSL [13]                 |  0.509        |  :no_entry:       |  0.505        |  0.500       |  :no_entry:    | 0.495     |
+MBiRW [14]                 |  0.501        |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
+LibMFWrapper [15]          |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
+LogisticMF [16]            |  0.500        |  0.500            |  0.500        |  0.500       |  0.500         | 0.500     |
+
+  Algorithm  (global)      | Synthetic*    | TRANSCRIPT    [a] | Gottlieb [b]  | Cdataset [c] | PREDICT    [d] | LRSSL [e] | 
+-------------------------- | ------------- | ----------------- | ------------- | ------------ | -------------- | --------- |
+PMF [1]                    |  0.922        |  0.579            |  0.598        |  0.604       |  0.656         | 0.611     |
+PulearnWrapper [2]         |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
+ALSWR [3]                  |  0.971        |  0.507            |  0.677        |  0.724       |  0.693         | 0.685     |
+FastaiCollabWrapper [4]    |  1.000        |  0.876            |  0.856        |  0.837       |  N/A           | N/A       |
+SimplePULearning [5]       |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
+SimpleBinaryClassifier [6] |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
+NIMCGCN [7]                |  N/A          |  N/A              |  N/A          |  N/A         |  :no_entry:    | N/A       |
+FFMWrapper [8]             |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
+VariationalWrapper [9]     |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
+DRRS [10]                  |  :no_entry:   |  0.662            |  0.838        |  0.878       |  :no_entry:    | 0.892     |
+SCPMF [11]                 |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
+BNNR [12]                  |  1.000        |  0.922            |  0.949        |  0.959       |  :no_entry:    | 0.972     |
+LRSSL [13]                 |  0.127        |  :no_entry:       |  0.159        |  0.846       |  :no_entry:    | 0.665     |
+MBiRW [14]                 |  1.000        |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
+LibMFWrapper [15]          |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
+LogisticMF [16]            |  1.000        |  0.910            |  0.941        |  0.955       |  0.953         | 0.933     |
 
 *Synthetic dataset created with function ``generate_dummy_dataset`` in ``stanscofi.datasets`` and the following arguments:
 ```python
@@ -56,17 +77,17 @@ std=1 #standard deviation for the distribution of positive and negative pairs
 
 Tags are associated with each method. 
 
-- <featureless> means that the algorithm does not leverage the input of drug/disease features. 
+- [[featureless]] means that the algorithm does not leverage the input of drug/disease features. 
 
-- <matrix_input> means that the algorithm considers as input a matrix of ratings (plus possibly matrices of drug/disease features), instead of considering as input (drug, disease) pairs.
+- [[matrix_input]] means that the algorithm considers as input a matrix of ratings (plus possibly matrices of drug/disease features), instead of considering as input (drug, disease) pairs.
 
-[1] Probabilistic Matrix Factorization (using Bayesian Pairwise Ranking) implemented at [this page](https://ethen8181.github.io/machine-learning/recsys/4_bpr.html). <featureless> <matrix_input>
+[1] Probabilistic Matrix Factorization (using Bayesian Pairwise Ranking) implemented at [this page](https://ethen8181.github.io/machine-learning/recsys/4_bpr.html). [[featureless]] [[matrix_input]]
 
-[2] Elkan and Noto's classifier based on SVMs (package [pulearn](https://pulearn.github.io/pulearn/) and [paper](https://cseweb.ucsd.edu/~elkan/posonly.pdf)). <featureless>
+[2] Elkan and Noto's classifier based on SVMs (package [pulearn](https://pulearn.github.io/pulearn/) and [paper](https://cseweb.ucsd.edu/~elkan/posonly.pdf)). [[featureless]]
 
-[3] Alternating Least Square Matrix Factorization algorithm implemented at [this page](https://ethen8181.github.io/machine-learning/recsys/2_implicit.html#Implementation). <featureless> 
+[3] Alternating Least Square Matrix Factorization algorithm implemented at [this page](https://ethen8181.github.io/machine-learning/recsys/2_implicit.html#Implementation). [[featureless]] 
 
-[4] Collaborative filtering approach ``collab_learner`` implemented by package [fast.ai](https://docs.fast.ai/collab.html). <featureless>
+[4] Collaborative filtering approach ``collab_learner`` implemented by package [fast.ai](https://docs.fast.ai/collab.html). [[featureless]]
 
 [5] Customizable neural network architecture with positive-unlabeled risk.
  
@@ -76,17 +97,21 @@ Tags are associated with each method.
 
 [8] Field-aware Factorization Machine (package [pyFFM](https://pypi.org/project/pyFFM/)).
 
-[9] Vie, J. J., Rigaux, T., & Kashima, H. (2022, December). Variational Factorization Machines for Preference Elicitation in Large-Scale Recommender Systems. In 2022 IEEE International Conference on Big Data (Big Data) (pp. 5607-5614). IEEE. ([pytorch implementation](https://github.com/jilljenn/vae)).
+[9] Vie, J. J., Rigaux, T., & Kashima, H. (2022, December). Variational Factorization Machines for Preference Elicitation in Large-Scale Recommender Systems. In 2022 IEEE International Conference on Big Data (Big Data) (pp. 5607-5614). IEEE. ([pytorch implementation](https://github.com/jilljenn/vae)). [[featureless]] 
 
-[10] Luo, H., Li, M., Wang, S., Liu, Q., Li, Y., & Wang, J. (2018). Computational drug repositioning using low-rank matrix approximation and randomized algorithms. Bioinformatics, 34(11), 1904-1912. ([download](http://bioinformatics.csu.edu.cn/resources/softs/DrugRepositioning/DRRS/index.html)).
+[10] Luo, H., Li, M., Wang, S., Liu, Q., Li, Y., & Wang, J. (2018). Computational drug repositioning using low-rank matrix approximation and randomized algorithms. Bioinformatics, 34(11), 1904-1912. ([download](http://bioinformatics.csu.edu.cn/resources/softs/DrugRepositioning/DRRS/index.html)). [[matrix_input]] 
 
-[11] Meng, Y., Jin, M., Tang, X., & Xu, J. (2021). Drug repositioning based on similarity constrained probabilistic matrix factorization: COVID-19 as a case study. Applied soft computing, 103, 107135. ([implementation](https://github.com/luckymengmeng/SCPMF)).
+[11] Meng, Y., Jin, M., Tang, X., & Xu, J. (2021). Drug repositioning based on similarity constrained probabilistic matrix factorization: COVID-19 as a case study. Applied soft computing, 103, 107135. ([implementation](https://github.com/luckymengmeng/SCPMF)). ??
 
-[12] Yang, M., Luo, H., Li, Y., & Wang, J. (2019). Drug repositioning based on bounded nuclear norm regularization. Bioinformatics, 35(14), i455-i463. ([implementation](https://github.com/BioinformaticsCSU/BNNR)).
+[12] Yang, M., Luo, H., Li, Y., & Wang, J. (2019). Drug repositioning based on bounded nuclear norm regularization. Bioinformatics, 35(14), i455-i463. ([implementation](https://github.com/BioinformaticsCSU/BNNR)). [[matrix_input]] 
 
-[13] Liang, X., Zhang, P., Yan, L., Fu, Y., Peng, F., Qu, L., ... & Chen, Z. (2017). LRSSL: predict and interpret drug–disease associations based on data integration using sparse subspace learning. Bioinformatics, 33(8), 1187-1196. ([implementation](https://github.com/LiangXujun/LRSSL)).
+[13] Liang, X., Zhang, P., Yan, L., Fu, Y., Peng, F., Qu, L., ... & Chen, Z. (2017). LRSSL: predict and interpret drug–disease associations based on data integration using sparse subspace learning. Bioinformatics, 33(8), 1187-1196. ([implementation](https://github.com/LiangXujun/LRSSL)). [[matrix_input]] 
 
-[14] Luo, H., Wang, J., Li, M., Luo, J., Peng, X., Wu, F. X., & Pan, Y. (2016). Drug repositioning based on comprehensive similarity measures and bi-random walk algorithm. Bioinformatics, 32(17), 2664-2671. ([implementation](https://github.com/bioinfomaticsCSU/MBiRW)).
+[14] Luo, H., Wang, J., Li, M., Luo, J., Peng, X., Wu, F. X., & Pan, Y. (2016). Drug repositioning based on comprehensive similarity measures and bi-random walk algorithm. Bioinformatics, 32(17), 2664-2671. ([implementation](https://github.com/bioinfomaticsCSU/MBiRW)). [[matrix_input]] 
+
+[15] W.-S. Chin, B.-W. Yuan, M.-Y. Yang, Y. Zhuang, Y.-C. Juan, and C.-J. Lin. LIBMF: A Library for Parallel Matrix Factorization in Shared-memory Systems. JMLR, 2015. [[featureless]]
+
+[16] Johnson, C. C. (2014). Logistic matrix factorization for implicit feedback data. Advances in Neural Information Processing Systems, 27(78), 1-9. [[featureless]]
 
 ---
 

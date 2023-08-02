@@ -36,7 +36,7 @@ class FastaiCollabWrapper(BasicModel):
             mat = np.column_stack((ids[:,1].ravel(), ids[:,0].ravel(), dataset.ratings.toarray().ravel()))
             keep_ids = dataset.folds.toarray().ravel()!=0
         df = pd.DataFrame(mat, index=range(mat.shape[0]), columns=["disease","drug","rating"]).astype(int)
-        return [df] if (is_training) else [df, keep_ids]
+        return [df] if (is_training) else [df, keep_ids, ids.shape[0]]
     
     def model_fit(self, df):
         np.random.seed(self.random_state)
@@ -44,7 +44,7 @@ class FastaiCollabWrapper(BasicModel):
         self.model = collab_learner(data, n_factors=self.n_factors, use_nn=True, y_range=self.y_range, emb_szs=None)
         self.model.fit_one_cycle(self.n_iterations, self.learning_rate, wd=self.weight_decay)
     
-    def model_predict_proba(self, df, keep_ids):
+    def model_predict_proba(self, df, keep_ids, n):
         ## https://docs.fast.ai/tutorial.tabular
         dl = self.model.dls.test_dl(df)
         preds = self.model.get_preds(dl=dl)[0].numpy().flatten()
