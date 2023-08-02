@@ -17,39 +17,39 @@ cd tests/ && python3 -m test_models <algorithm> <dataset or empty if using the s
   Algorithm  (row-wise)    | Synthetic*    | TRANSCRIPT    [a] | Gottlieb [b]  | Cdataset [c] | PREDICT    [d] | LRSSL [e] | 
 -------------------------- | ------------- | ----------------- | ------------- | ------------ | -------------- | --------- |
 PMF [1]                    |  0.974        |  0.549            |  0.561        |  0.555       |  0.568         | 0.546     |
-PulearnWrapper [2]         |  0.500        |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
-ALSWR [3]                  |  0.755        |  0.567            |  0.582        |  0.608       |  0.621         | 0.604     |
+PulearnWrapper [2]         |  0.500        |  :no_entry:       |  N/A          |  N/A         |  :no_entry:    | :no_entry:|
+ALSWR [3]                  |  0.755        |  0.567            |  0.582        |  0.608       |  0.501         | 0.604     |
 FastaiCollabWrapper [4]    |  0.500        |  0.493            |  0.500        |  0.500       |  0.501         | 0.500     |
-SimplePULearning [5]       |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
-SimpleBinaryClassifier [6] |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
+SimplePULearning [5]       |  0.500        |  :no_entry:       |  :no_entry:   |  :no_entry:  |  N/A           | :no_entry:|
+SimpleBinaryClassifier [6] |  0.500        |  :no_entry:       |  0.500        |  :no_entry:  |  :no_entry:    | :no_entry:|
 NIMCGCN [7]                |  0.500        |  0.500            |  0.500        |  0.500       |  :no_entry:    | 0.500     |
-FFMWrapper [8]             |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
-VariationalWrapper [9]     |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
+FFMWrapper [8]             |  0.500        |  :no_entry:       |  :no_entry:   |  :no_entry:  |  :no_entry:    | :no_entry:|
+VariationalWrapper [9]     |  0.500        |  :no_entry:       |  0.500        |  0.500       |  :no_entry:    | :no_entry:|
 DRRS [10]                  |  :no_entry:   |  0.542            |  0.647        |  0.685       |  :no_entry:    | 0.752     |
-SCPMF [11]                 |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
+SCPMF [11]                 |  0.566        |  0.576            |  0.540        |  0.523       |  :no_entry:    | 0.599     |
 BNNR [12]                  |  0.500        |  0.500            |  0.500        |  0.500       |  :no_entry:    | 0.500     |
 LRSSL [13]                 |  0.509        |  :no_entry:       |  0.505        |  0.500       |  :no_entry:    | 0.495     |
-MBiRW [14]                 |  0.501        |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
-LibMFWrapper [15]          |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
+MBiRW [14]                 |  0.501        |  0.495            |  0.500        |  0.500       |  :no_entry:    | 0.500     |
+LibMFWrapper [15]          |  0.500        |  0.994            |  0.951        |  0.956       |  0.975         | 0.944     |
 LogisticMF [16]            |  0.500        |  0.500            |  0.500        |  0.500       |  0.500         | 0.500     |
 
   Algorithm  (global)      | Synthetic*    | TRANSCRIPT    [a] | Gottlieb [b]  | Cdataset [c] | PREDICT    [d] | LRSSL [e] | 
 -------------------------- | ------------- | ----------------- | ------------- | ------------ | -------------- | --------- |
 PMF [1]                    |  0.922        |  0.579            |  0.598        |  0.604       |  0.656         | 0.611     |
-PulearnWrapper [2]         |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
+PulearnWrapper [2]         |  N/A          |  :no_entry:       |  N/A          |  N/A         |  :no_entry:    | :no_entry:|
 ALSWR [3]                  |  0.971        |  0.507            |  0.677        |  0.724       |  0.693         | 0.685     |
-FastaiCollabWrapper [4]    |  1.000        |  0.876            |  0.856        |  0.837       |  N/A           | N/A       |
-SimplePULearning [5]       |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
-SimpleBinaryClassifier [6] |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
-NIMCGCN [7]                |  N/A          |  N/A              |  N/A          |  N/A         |  :no_entry:    | N/A       |
-FFMWrapper [8]             |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
-VariationalWrapper [9]     |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
+FastaiCollabWrapper [4]    |  1.000        |  0.876            |  0.856        |  0.837       |  0.835         | 0.851     |
+SimplePULearning [5]       |  0.995        |  :no_entry:       |  :no_entry:   |  :no_entry:  |  :no_entry:    | :no_entry:|
+SimpleBinaryClassifier [6] |  0.876        |  :no_entry:       |  0.855        |  :no_entry:  |  :no_entry:    | :no_entry:|
+NIMCGCN [7]                |  0.907        |  0.854            |  0.843        |  0.841       |  :no_entry:    | 0.873     |
+FFMWrapper [8]             |  0.924        |  :no_entry:       |  :no_entry:   |  :no_entry:  |  :no_entry:    | :no_entry:|
+VariationalWrapper [9]     |  0.904        |  :no_entry:       |  0.851        |  0.851       |  :no_entry:    | :no_entry:|
 DRRS [10]                  |  :no_entry:   |  0.662            |  0.838        |  0.878       |  :no_entry:    | 0.892     |
-SCPMF [11]                 |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
+SCPMF [11]                 |  0.853        |  0.680            |  0.548        |  0.538       |  :no_entry:    | 0.708     |
 BNNR [12]                  |  1.000        |  0.922            |  0.949        |  0.959       |  :no_entry:    | 0.972     |
 LRSSL [13]                 |  0.127        |  :no_entry:       |  0.159        |  0.846       |  :no_entry:    | 0.665     |
-MBiRW [14]                 |  1.000        |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
-LibMFWrapper [15]          |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
+MBiRW [14]                 |  1.000        |  0.913            |  0.954        |  0.965       |  :no_entry:    | 0.975     |
+LibMFWrapper [15]          |  1.000        |  0.979            |  0.954        |  0.958       |  0.970         | 0.940     |
 LogisticMF [16]            |  1.000        |  0.910            |  0.941        |  0.955       |  0.953         | 0.933     |
 
 *Synthetic dataset created with function ``generate_dummy_dataset`` in ``stanscofi.datasets`` and the following arguments:
@@ -101,7 +101,7 @@ Tags are associated with each method.
 
 [10] Luo, H., Li, M., Wang, S., Liu, Q., Li, Y., & Wang, J. (2018). Computational drug repositioning using low-rank matrix approximation and randomized algorithms. Bioinformatics, 34(11), 1904-1912. ([download](http://bioinformatics.csu.edu.cn/resources/softs/DrugRepositioning/DRRS/index.html)). [[matrix_input]] 
 
-[11] Meng, Y., Jin, M., Tang, X., & Xu, J. (2021). Drug repositioning based on similarity constrained probabilistic matrix factorization: COVID-19 as a case study. Applied soft computing, 103, 107135. ([implementation](https://github.com/luckymengmeng/SCPMF)). ??
+[11] Meng, Y., Jin, M., Tang, X., & Xu, J. (2021). Drug repositioning based on similarity constrained probabilistic matrix factorization: COVID-19 as a case study. Applied soft computing, 103, 107135. ([implementation](https://github.com/luckymengmeng/SCPMF)). [[matrix_input]] 
 
 [12] Yang, M., Luo, H., Li, Y., & Wang, J. (2019). Drug repositioning based on bounded nuclear norm regularization. Bioinformatics, 35(14), i455-i463. ([implementation](https://github.com/BioinformaticsCSU/BNNR)). [[matrix_input]] 
 
@@ -109,9 +109,9 @@ Tags are associated with each method.
 
 [14] Luo, H., Wang, J., Li, M., Luo, J., Peng, X., Wu, F. X., & Pan, Y. (2016). Drug repositioning based on comprehensive similarity measures and bi-random walk algorithm. Bioinformatics, 32(17), 2664-2671. ([implementation](https://github.com/bioinfomaticsCSU/MBiRW)). [[matrix_input]] 
 
-[15] W.-S. Chin, B.-W. Yuan, M.-Y. Yang, Y. Zhuang, Y.-C. Juan, and C.-J. Lin. LIBMF: A Library for Parallel Matrix Factorization in Shared-memory Systems. JMLR, 2015. [[featureless]]
+[15] W.-S. Chin, B.-W. Yuan, M.-Y. Yang, Y. Zhuang, Y.-C. Juan, and C.-J. Lin. LIBMF: A Library for Parallel Matrix Factorization in Shared-memory Systems. JMLR, 2015. ([implementation](https://github.com/cjlin1/libmf)). [[featureless]]
 
-[16] Johnson, C. C. (2014). Logistic matrix factorization for implicit feedback data. Advances in Neural Information Processing Systems, 27(78), 1-9. [[featureless]]
+[16] Johnson, C. C. (2014). Logistic matrix factorization for implicit feedback data. Advances in Neural Information Processing Systems, 27(78), 1-9. ([implementation](https://github.com/MrChrisJohnson/logistic-mf)). [[featureless]]
 
 ---
 
@@ -147,7 +147,7 @@ octave --eval "'octave is installed!'"
 
 #### MATLAB compiler
 
-Install a MATLAB compiler (version 2012b) as follow, or do not use algorithm ``DRRS``.
+Install a MATLAB compiler (version 2012b) as follows, or do not use algorithm ``DRRS``.
 
 ```bash
 sudo apt-get install -y libxmu-dev # libXmu.so.6 is required
@@ -163,11 +163,7 @@ chown -R kali /usr/local/MATLAB/
 
 ### 2. Install CUDA (for tensorflow and pytorch-based algorithms)
 
-TODO
-
-Or ignore the following algorithms: ...
-
-Install [CUDA](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html)
+Install [CUDA](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html), or do not use algorithms ``SimplePULearning``, ``SimpleBinaryClassifier``, ``VariationalWrapper``.
 
 ### 3. Install the latest **benchscofi** release
 
@@ -191,7 +187,7 @@ It is strongly advised to create a virtual environment using Conda (python>=3.8)
 conda create -n benchscofi_env python=3.8.5 -y
 conda activate benchscofi_env
 python3 -m pip install benchscofi ## or use the conda command above
-## TODO python3 -m pip uninstall werkzeug
+python3 -m pip uninstall werkzeug
 python3 -m pip install notebook>=6.5.4 markupsafe==2.0.1 ## packages for Jupyter notebook
 conda deactivate
 conda activate benchscofi_env

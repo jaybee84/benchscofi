@@ -76,7 +76,7 @@ class MBiRW(BasicModel):
         call('cd %s/ && java -jar "cluster_one-1.0.jar"  "DiseasesP.txt" -F csv > DiseasesC.txt' % filefolder, shell=True)
         cmd = "Wdd = csvread('X_p.csv');Wdr = csvread('A_sp.csv');Wrr = csvread('X_s.csv');Wrname = csvread('s_names.csv');Wdname = csvread('p_names.csv');Wrd = Wdr';A = Wrd;alpha=%f;l=%d;r=%d;d=%f;dn = size(Wdd,1);dr = size(Wrr,1);newWrr = csvread('X_s.csv');newWdd = csvread('X_p.csv');cr = setparFun(Wrd,Wrr);cd = setparFun(Wdr,Wdd);LWrr = 1./(1+exp(cr*Wrr+d));LWdd = 1./(1+exp(cd*Wdd+d));[RWrr,RWdd] = nManiCluester(LWrr,LWdd,newWrr,newWdd,Wrname,Wdname);normWrr = normFun(RWrr);normWdd = normFun(RWdd);R0 = A/sum(A(:));Rt = R0;for t=1:max(l,r);ftl = 0;ftr = 0;if(t<=l);nRtleft = alpha * normWrr*Rt + (1-alpha)*R0;ftl = 1;end;if(t<=r);nRtright = alpha * Rt * normWdd + (1-alpha)*R0;ftr = 1;end;Rt =  (ftl*nRtleft + ftr*nRtright)/(ftl + ftr);end;csvwrite('Rt.csv', Rt);" % (self.alpha, self.l, self.r, self.d)
         call("cd %s/ && octave --silent --eval \"%s\"" % (filefolder, cmd), shell=True)
-        self.predictions = np.loadtxt("%s/Rt.csv" % filefolder, delimiter=",").T
+        self.predictions = np.loadtxt("%s/Rt.csv" % filefolder, delimiter=",")
         call("rm -rf %s/" % filefolder, shell=True)
 
     def model_predict_proba(self, X_s, X_p, A_sp):
