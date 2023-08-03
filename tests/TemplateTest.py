@@ -48,12 +48,13 @@ class TestModel(unittest.TestCase):
         model.print_scores(scores)
         predictions = model.predict(scores, threshold=0)
         model.print_classification(predictions)
-        metrics, _ = stanscofi.validation.compute_metrics(scores, predictions, test_dataset, metrics=["AUC"], k=5, beta=1, verbose=False)
+        metrics, _ = stanscofi.validation.compute_metrics(scores, predictions, test_dataset, metrics=["AUC", "NDCGk"], k=dataset.nitems, beta=1, verbose=False)
         print(metrics)
-        from stanscofi.validation import AUC
+        from stanscofi.validation import AUC, NDCGk
         y_test = (test_dataset.folds.toarray()*test_dataset.ratings.toarray()).ravel()
         y_test[y_test<1] = 0
         print("(global) AUC = %.3f" % AUC(y_test, scores.toarray().ravel(), 1, 1))
+        print("(global) NDCG@%d = %.3f" % (dataset.nitems, NDCGk(y_test, scores.toarray().ravel(), dataset.nitems, 1)))
         print(("_"*27)+"\n\n")
 from sklearn.metrics import ndcg_score, roc_auc_score
         ## if it ends without any error, it is a success

@@ -14,10 +14,10 @@ cd tests/ && python3 -m test_models <algorithm> <dataset or empty if using the s
 
 :no_entry:'s represent failure to train or to predict. ``N/A``'s have not been tested yet.
 
-  Algorithm  (row-wise)    | Synthetic*    | TRANSCRIPT    [a] | Gottlieb [b]  | Cdataset [c] | PREDICT    [d] | LRSSL [e] | 
+  Algorithm (row-wise AUC) | Synthetic*    | TRANSCRIPT    [a] | Gottlieb [b]  | Cdataset [c] | PREDICT    [d] | LRSSL [e] | 
 -------------------------- | ------------- | ----------------- | ------------- | ------------ | -------------- | --------- |
 PMF [1]                    |  0.974        |  0.549            |  0.561        |  0.555       |  0.568         | 0.546     |
-PulearnWrapper [2]         |  0.500        |  :no_entry:       |  N/A          |  N/A         |  :no_entry:    | :no_entry:|
+PulearnWrapper [2]         |  0.500        |  :no_entry:       |  N/A          |  :no_entry:  |  :no_entry:    | :no_entry:|
 ALSWR [3]                  |  0.755        |  0.567            |  0.582        |  0.608       |  0.501         | 0.604     |
 FastaiCollabWrapper [4]    |  0.500        |  0.493            |  0.500        |  0.500       |  0.501         | 0.500     |
 SimplePULearning [5]       |  0.500        |  :no_entry:       |  :no_entry:   |  :no_entry:  |  N/A           | :no_entry:|
@@ -33,10 +33,10 @@ MBiRW [14]                 |  0.501        |  0.495            |  0.500        |
 LibMFWrapper [15]          |  0.500        |  0.994            |  0.951        |  0.956       |  0.975         | 0.944     |
 LogisticMF [16]            |  0.500        |  0.500            |  0.500        |  0.500       |  0.500         | 0.500     |
 
-  Algorithm  (global)      | Synthetic*    | TRANSCRIPT    [a] | Gottlieb [b]  | Cdataset [c] | PREDICT    [d] | LRSSL [e] | 
+  Algorithm  (global AUC)  | Synthetic*    | TRANSCRIPT    [a] | Gottlieb [b]  | Cdataset [c] | PREDICT    [d] | LRSSL [e] | 
 -------------------------- | ------------- | ----------------- | ------------- | ------------ | -------------- | --------- |
 PMF [1]                    |  0.922        |  0.579            |  0.598        |  0.604       |  0.656         | 0.611     |
-PulearnWrapper [2]         |  N/A          |  :no_entry:       |  N/A          |  N/A         |  :no_entry:    | :no_entry:|
+PulearnWrapper [2]         |  1.000        |  :no_entry:       |  N/A          |  :no_entry:  |  :no_entry:    | :no_entry:|
 ALSWR [3]                  |  0.971        |  0.507            |  0.677        |  0.724       |  0.693         | 0.685     |
 FastaiCollabWrapper [4]    |  1.000        |  0.876            |  0.856        |  0.837       |  0.835         | 0.851     |
 SimplePULearning [5]       |  0.995        |  :no_entry:       |  :no_entry:   |  :no_entry:  |  :no_entry:    | :no_entry:|
@@ -52,6 +52,27 @@ MBiRW [14]                 |  1.000        |  0.913            |  0.954        |
 LibMFWrapper [15]          |  1.000        |  0.979            |  0.954        |  0.958       |  0.970         | 0.940     |
 LogisticMF [16]            |  1.000        |  0.910            |  0.941        |  0.955       |  0.953         | 0.933     |
 
+The NDCG score is computed across all diseases (global), at k=#items.
+
+Algorithm (global NDCG@k)  | Synthetic@300*| TRANSCRIPT@613[a] |Gottlieb@593[b]|Cdataset@663[c]|PREDICT@1577[d]|LRSSL@763[e]| 
+-------------------------- | ------------- | ----------------- | ------------- | ------------ | -------------- | --------- |
+PMF [1]                    |  0.070        |  0.019            |  0.015        |  0.011       |  0.005         | 0.007     |
+PulearnWrapper [2]         |  N/A          |  :no_entry:       |  N/A          |  :no_entry:  |  :no_entry:    | :no_entry:|
+ALSWR [3]                  |  0.000        |  0.177            |  0.236        |  0.406       |  0.193         | 0.424     |
+FastaiCollabWrapper [4]    |  1.000        |  0.035            |  0.012        |  0.003       |  0.001         | 0.000     |
+SimplePULearning [5]       |  1.000        |  :no_entry:       |  :no_entry:   |  :no_entry:  |  :no_entry:    | :no_entry:|
+SimpleBinaryClassifier [6] |  0.000        |  :no_entry:       |  :no_entry:   |  :no_entry:  |  :no_entry:    | :no_entry:|
+NIMCGCN [7]                |  0.568        |  0.022            |  0.006        |  0.005       |  :no_entry:    | 0.014     |
+FFMWrapper [8]             |  1.000        |  :no_entry:       |  :no_entry:   |  :no_entry:  |  :no_entry:    | :no_entry:|
+VariationalWrapper [9]     |  :no_entry:   |  :no_entry:       |  0.011        |  0.010       |  :no_entry:    | :no_entry:|
+DRRS [10]                  |  :no_entry:   |  0.484            |  0.301        |  0.426       |  :no_entry:    | 0.182     |
+SCPMF [11]                 |  0.528        |  0.102            |  0.025        |  0.011       |  :no_entry:    | 0.008     |
+BNNR [12]                  |  1.000        |  0.466            |  0.417        |  0.572       |  :no_entry:    | 0.508     |
+LRSSL [13]                 |  0.206        |  :no_entry:       |  0.009        |  0.004       |  :no_entry:    | 0.012     |
+MBiRW [14]                 |  1.000        |  0.085            |  0.267        |  0.352       |  :no_entry:    | 0.457     |
+LibMFWrapper [15]          |  1.000        |  0.982            |  0.954        |  1.000       |  1.000         | 1.000     |
+LogisticMF [16]            |  1.000        |  0.323            |  0.106        |  0.101       |  0.076         | 0.078     |
+
 *Synthetic dataset created with function ``generate_dummy_dataset`` in ``stanscofi.datasets`` and the following arguments:
 ```python
 npositive=200 #number of positive pairs
@@ -63,15 +84,15 @@ std=1 #standard deviation for the distribution of positive and negative pairs
 
 ---
 
-[a] Réda, Clémence. (2023). TRANSCRIPT drug repurposing dataset (2.0.0) [Data set]. Zenodo. doi:10.5281/zenodo.7982976
+**[a]** Réda, Clémence. (2023). TRANSCRIPT drug repurposing dataset (2.0.0) [Data set]. Zenodo. doi:10.5281/zenodo.7982976
 
-[b] Gottlieb, A., Stein, G. Y., Ruppin, E., & Sharan, R. (2011). PREDICT: a method for inferring novel drug indications with application to personalized medicine. Molecular systems biology, 7(1), 496.
+**[b]** Gottlieb, A., Stein, G. Y., Ruppin, E., & Sharan, R. (2011). PREDICT: a method for inferring novel drug indications with application to personalized medicine. Molecular systems biology, 7(1), 496.
 
-[c] Luo, H., Li, M., Wang, S., Liu, Q., Li, Y., & Wang, J. (2018). Computational drug repositioning using low-rank matrix approximation and randomized algorithms. Bioinformatics, 34(11), 1904-1912.
+**[c]** Luo, H., Li, M., Wang, S., Liu, Q., Li, Y., & Wang, J. (2018). Computational drug repositioning using low-rank matrix approximation and randomized algorithms. Bioinformatics, 34(11), 1904-1912.
 
-[d] Réda, Clémence. (2023). PREDICT drug repurposing dataset (2.0.1) [Data set]. Zenodo. doi:10.5281/zenodo.7983090
+**[d]** Réda, Clémence. (2023). PREDICT drug repurposing dataset (2.0.1) [Data set]. Zenodo. doi:10.5281/zenodo.7983090
 
-[e] Liang, X., Zhang, P., Yan, L., Fu, Y., Peng, F., Qu, L., … & Chen, Z. (2017). LRSSL: predict and interpret drug–disease associations based on data integration using sparse subspace learning. Bioinformatics, 33(8), 1187-1196.
+**[e]** Liang, X., Zhang, P., Yan, L., Fu, Y., Peng, F., Qu, L., … & Chen, Z. (2017). LRSSL: predict and interpret drug–disease associations based on data integration using sparse subspace learning. Bioinformatics, 33(8), 1187-1196.
 
 ---
 
@@ -81,37 +102,37 @@ Tags are associated with each method.
 
 - [[matrix_input]] means that the algorithm considers as input a matrix of ratings (plus possibly matrices of drug/disease features), instead of considering as input (drug, disease) pairs.
 
-[1] Probabilistic Matrix Factorization (using Bayesian Pairwise Ranking) implemented at [this page](https://ethen8181.github.io/machine-learning/recsys/4_bpr.html). [[featureless]] [[matrix_input]]
+**[1]** Probabilistic Matrix Factorization (using Bayesian Pairwise Ranking) implemented at [this page](https://ethen8181.github.io/machine-learning/recsys/4_bpr.html). [[featureless]] [[matrix_input]]
 
-[2] Elkan and Noto's classifier based on SVMs (package [pulearn](https://pulearn.github.io/pulearn/) and [paper](https://cseweb.ucsd.edu/~elkan/posonly.pdf)). [[featureless]]
+**[2]** Elkan and Noto's classifier based on SVMs (package [pulearn](https://pulearn.github.io/pulearn/) and [paper](https://cseweb.ucsd.edu/~elkan/posonly.pdf)). [[featureless]]
 
-[3] Alternating Least Square Matrix Factorization algorithm implemented at [this page](https://ethen8181.github.io/machine-learning/recsys/2_implicit.html#Implementation). [[featureless]] 
+**[3]** Alternating Least Square Matrix Factorization algorithm implemented at [this page](https://ethen8181.github.io/machine-learning/recsys/2_implicit.html#Implementation). [[featureless]] 
 
-[4] Collaborative filtering approach ``collab_learner`` implemented by package [fast.ai](https://docs.fast.ai/collab.html). [[featureless]]
+**[4]** Collaborative filtering approach ``collab_learner`` implemented by package [fast.ai](https://docs.fast.ai/collab.html). [[featureless]]
 
-[5] Customizable neural network architecture with positive-unlabeled risk.
+**[5]** Customizable neural network architecture with positive-unlabeled risk.
  
-[6] Customizable neural network architecture for positive-negative learning.
+**[6]** Customizable neural network architecture for positive-negative learning.
 
-[7] Jin Li, Sai Zhang, Tao Liu, Chenxi Ning, Zhuoxuan Zhang and Wei Zhou. Neural inductive matrix completion with graph convolutional networks for miRNA-disease association prediction. Bioinformatics, Volume 36, Issue 8, 15 April 2020, Pages 2538–2546. doi: 10.1093/bioinformatics/btz965. ([implementation](https://github.com/ljatynu/NIMCGCN)).
+**[7]** Jin Li, Sai Zhang, Tao Liu, Chenxi Ning, Zhuoxuan Zhang and Wei Zhou. Neural inductive matrix completion with graph convolutional networks for miRNA-disease association prediction. Bioinformatics, Volume 36, Issue 8, 15 April 2020, Pages 2538–2546. doi: 10.1093/bioinformatics/btz965. ([implementation](https://github.com/ljatynu/NIMCGCN)).
 
-[8] Field-aware Factorization Machine (package [pyFFM](https://pypi.org/project/pyFFM/)).
+**[8]** Field-aware Factorization Machine (package [pyFFM](https://pypi.org/project/pyFFM/)).
 
-[9] Vie, J. J., Rigaux, T., & Kashima, H. (2022, December). Variational Factorization Machines for Preference Elicitation in Large-Scale Recommender Systems. In 2022 IEEE International Conference on Big Data (Big Data) (pp. 5607-5614). IEEE. ([pytorch implementation](https://github.com/jilljenn/vae)). [[featureless]] 
+**[9]** Vie, J. J., Rigaux, T., & Kashima, H. (2022, December). Variational Factorization Machines for Preference Elicitation in Large-Scale Recommender Systems. In 2022 IEEE International Conference on Big Data (Big Data) (pp. 5607-5614). IEEE. ([pytorch implementation](https://github.com/jilljenn/vae)). [[featureless]] 
 
-[10] Luo, H., Li, M., Wang, S., Liu, Q., Li, Y., & Wang, J. (2018). Computational drug repositioning using low-rank matrix approximation and randomized algorithms. Bioinformatics, 34(11), 1904-1912. ([download](http://bioinformatics.csu.edu.cn/resources/softs/DrugRepositioning/DRRS/index.html)). [[matrix_input]] 
+**[10]** Luo, H., Li, M., Wang, S., Liu, Q., Li, Y., & Wang, J. (2018). Computational drug repositioning using low-rank matrix approximation and randomized algorithms. Bioinformatics, 34(11), 1904-1912. ([download](http://bioinformatics.csu.edu.cn/resources/softs/DrugRepositioning/DRRS/index.html)). [[matrix_input]] 
 
-[11] Meng, Y., Jin, M., Tang, X., & Xu, J. (2021). Drug repositioning based on similarity constrained probabilistic matrix factorization: COVID-19 as a case study. Applied soft computing, 103, 107135. ([implementation](https://github.com/luckymengmeng/SCPMF)). [[matrix_input]] 
+**[11]** Meng, Y., Jin, M., Tang, X., & Xu, J. (2021). Drug repositioning based on similarity constrained probabilistic matrix factorization: COVID-19 as a case study. Applied soft computing, 103, 107135. ([implementation](https://github.com/luckymengmeng/SCPMF)). [[matrix_input]] 
 
-[12] Yang, M., Luo, H., Li, Y., & Wang, J. (2019). Drug repositioning based on bounded nuclear norm regularization. Bioinformatics, 35(14), i455-i463. ([implementation](https://github.com/BioinformaticsCSU/BNNR)). [[matrix_input]] 
+**[12]** Yang, M., Luo, H., Li, Y., & Wang, J. (2019). Drug repositioning based on bounded nuclear norm regularization. Bioinformatics, 35(14), i455-i463. ([implementation](https://github.com/BioinformaticsCSU/BNNR)). [[matrix_input]] 
 
-[13] Liang, X., Zhang, P., Yan, L., Fu, Y., Peng, F., Qu, L., ... & Chen, Z. (2017). LRSSL: predict and interpret drug–disease associations based on data integration using sparse subspace learning. Bioinformatics, 33(8), 1187-1196. ([implementation](https://github.com/LiangXujun/LRSSL)). [[matrix_input]] 
+**[13]** Liang, X., Zhang, P., Yan, L., Fu, Y., Peng, F., Qu, L., ... & Chen, Z. (2017). LRSSL: predict and interpret drug–disease associations based on data integration using sparse subspace learning. Bioinformatics, 33(8), 1187-1196. ([implementation](https://github.com/LiangXujun/LRSSL)). [[matrix_input]] 
 
-[14] Luo, H., Wang, J., Li, M., Luo, J., Peng, X., Wu, F. X., & Pan, Y. (2016). Drug repositioning based on comprehensive similarity measures and bi-random walk algorithm. Bioinformatics, 32(17), 2664-2671. ([implementation](https://github.com/bioinfomaticsCSU/MBiRW)). [[matrix_input]] 
+**[14]** Luo, H., Wang, J., Li, M., Luo, J., Peng, X., Wu, F. X., & Pan, Y. (2016). Drug repositioning based on comprehensive similarity measures and bi-random walk algorithm. Bioinformatics, 32(17), 2664-2671. ([implementation](https://github.com/bioinfomaticsCSU/MBiRW)). [[matrix_input]] 
 
-[15] W.-S. Chin, B.-W. Yuan, M.-Y. Yang, Y. Zhuang, Y.-C. Juan, and C.-J. Lin. LIBMF: A Library for Parallel Matrix Factorization in Shared-memory Systems. JMLR, 2015. ([implementation](https://github.com/cjlin1/libmf)). [[featureless]]
+**[15]** W.-S. Chin, B.-W. Yuan, M.-Y. Yang, Y. Zhuang, Y.-C. Juan, and C.-J. Lin. LIBMF: A Library for Parallel Matrix Factorization in Shared-memory Systems. JMLR, 2015. ([implementation](https://github.com/cjlin1/libmf)). [[featureless]]
 
-[16] Johnson, C. C. (2014). Logistic matrix factorization for implicit feedback data. Advances in Neural Information Processing Systems, 27(78), 1-9. ([implementation](https://github.com/MrChrisJohnson/logistic-mf)). [[featureless]]
+**[16]** Johnson, C. C. (2014). Logistic matrix factorization for implicit feedback data. Advances in Neural Information Processing Systems, 27(78), 1-9. ([implementation](https://github.com/MrChrisJohnson/logistic-mf)). [[featureless]]
 
 ---
 
