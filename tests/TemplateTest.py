@@ -32,12 +32,20 @@ class TestModel(unittest.TestCase):
     def test_model(self): 
         random_seed = 124565 
         test_size = 0.3
+        batched=False
         np.random.seed(random_seed)
         random.seed(random_seed)
         if ("YYYYYYYYYYY"==("Y"*11)):
             dataset = self.generate_dataset(random_seed)
         else:
             dataset = self.load_dataset("YYYYYYYYYYY")
+        if (batched):
+            print("batch")
+            red_size = 1000/(dataset.nusers*dataset.nitems)
+            print(red_size)
+            (_, red_folds), _ = stanscofi.training_testing.random_simple_split(dataset, red_size, metric="euclidean", random_state=random_seed)
+            dataset = dataset.subset(red_folds)
+            print(dataset.ratings.shape)
         (train_folds, test_folds), _ = stanscofi.training_testing.random_simple_split(dataset, test_size, metric="euclidean", random_state=random_seed)
         model = benchscofi.XXXXXX.XXXXXX()
         train_dataset = dataset.subset(train_folds)

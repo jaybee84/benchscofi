@@ -32,6 +32,8 @@ LRSSL [13]                 |  0.509        |  :no_entry:       |  0.505        |
 MBiRW [14]                 |  0.501        |  0.495            |  0.500        |  0.500       |  :no_entry:    | 0.500     |
 LibMFWrapper [15]          |  0.500        |  0.994            |  0.951        |  0.956       |  0.975         | 0.944     |
 LogisticMF [16]            |  0.500        |  0.500            |  0.500        |  0.500       |  0.500         | 0.500     |
+PSGCN [17]                 |  0.499        |  :no_entry:       |  0.529        |  0.545       |  :no_entry:    | 0.532     |
+DDA_SKF [18]               |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
 
   Algorithm  (global AUC)  | Synthetic*    | TRANSCRIPT    [a] | Gottlieb [b]  | Cdataset [c] | PREDICT    [d] | LRSSL [e] | 
 -------------------------- | ------------- | ----------------- | ------------- | ------------ | -------------- | --------- |
@@ -51,6 +53,8 @@ LRSSL [13]                 |  0.127        |  :no_entry:       |  0.159        |
 MBiRW [14]                 |  1.000        |  0.913            |  0.954        |  0.965       |  :no_entry:    | 0.975     |
 LibMFWrapper [15]          |  1.000        |  0.979            |  0.954        |  0.958       |  0.970         | 0.940     |
 LogisticMF [16]            |  1.000        |  0.910            |  0.941        |  0.955       |  0.953         | 0.933     |
+PSGCN [17]                 |  0.767        |  :no_entry:       |  0.802        |  0.888       |  :no_entry:    | 0.887     |
+DDA_SKF [18]               |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
 
 The NDCG score is computed across all diseases (global), at k=#items.
 
@@ -72,6 +76,8 @@ LRSSL [13]                 |  0.206        |  :no_entry:       |  0.009        |
 MBiRW [14]                 |  1.000        |  0.085            |  0.267        |  0.352       |  :no_entry:    | 0.457     |
 LibMFWrapper [15]          |  1.000        |  0.982            |  0.954        |  1.000       |  1.000         | 1.000     |
 LogisticMF [16]            |  1.000        |  0.323            |  0.106        |  0.101       |  0.076         | 0.078     |
+PSGCN [17]                 |  0.969        |  :no_entry:       |  0.074        |  0.052       |  :no_entry:    | 0.110     |
+DDA_SKF [18]               |  N/A          |  N/A              |  N/A          |  N/A         |  N/A           | N/A       |
 
 *Synthetic dataset created with function ``generate_dummy_dataset`` in ``stanscofi.datasets`` and the following arguments:
 ```python
@@ -80,6 +86,7 @@ nnegative=100 #number of negative pairs
 nfeatures=50 #number of pair features
 mean=0.5 #mean for the distribution of positive pairs, resp. -mean for the negative pairs
 std=1 #standard deviation for the distribution of positive and negative pairs
+random_seed=124565 # random seed
 ```
 
 ---
@@ -133,6 +140,10 @@ Tags are associated with each method.
 **[15]** W.-S. Chin, B.-W. Yuan, M.-Y. Yang, Y. Zhuang, Y.-C. Juan, and C.-J. Lin. LIBMF: A Library for Parallel Matrix Factorization in Shared-memory Systems. JMLR, 2015. ([implementation](https://github.com/cjlin1/libmf)). [[featureless]]
 
 **[16]** Johnson, C. C. (2014). Logistic matrix factorization for implicit feedback data. Advances in Neural Information Processing Systems, 27(78), 1-9. ([implementation](https://github.com/MrChrisJohnson/logistic-mf)). [[featureless]]
+
+**[17]** Sun, X., Wang, B., Zhang, J., & Li, M. (2022). Partner-Specific Drug Repositioning Approach Based on Graph Convolutional Network. IEEE Journal of Biomedical and Health Informatics, 26(11), 5757-5765. ([implementation](https://github.com/bbjy/PSGCN)). [[featureless]] [[matrix_input]] 
+
+**[18]** Gao, C. Q., Zhou, Y. K., Xin, X. H., Min, H., & Du, P. F. (2022). DDA-SKF: Predicting Drug–Disease Associations Using Similarity Kernel Fusion. Frontiers in Pharmacology, 12, 784171. ([implementation](https://github.com/GCQ2119216031/DDA-SKF)). [[matrix_input]] 
 
 ---
 
