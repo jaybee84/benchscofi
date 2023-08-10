@@ -116,17 +116,18 @@ class LibMFWrapper(BasicModel):
         process = Popen(("rm -f "+self.libmf_folder+"mat.*.txt "+self.libmf_folder+"ocmf_model.txt").split(" "))
         process.wait()
 
-    def model_predict_proba(self, mat, rats):
+    def model_predict_proba(self, mat, rats, ev=12, rm=True):
         np.savetxt(self.libmf_folder+"mat.txt", mat, fmt='%d')
         with open(self.libmf_folder+"ocmf_model.txt", "w") as f:
             f.write(self.model)
-        cmd = self.libmf_folder+"mf-predict -e 12 %s %s %s" % (self.libmf_folder+"mat.txt", 
+        cmd = self.libmf_folder+"mf-predict -e %d %s %s %s" % (ev, self.libmf_folder+"mat.txt", 
             self.libmf_folder+"ocmf_model.txt", self.libmf_folder+"ocmf_output.txt"
         )
         process = Popen(cmd.split(" "))
         process.wait()
         preds = np.zeros(rats.shape[0])
         preds[rats==1] = np.loadtxt(self.libmf_folder+"ocmf_output.txt")
-        process = Popen(("rm -f "+self.libmf_folder+"mat.txt "+self.libmf_folder+"ocmf_*.txt").split(" "))
-        process.wait()
+        if (rm):
+            process = Popen(("rm -f "+self.libmf_folder+"mat.txt "+self.libmf_folder+"ocmf_*.txt").split(" "))
+            process.wait()
         return preds

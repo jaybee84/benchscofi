@@ -5,6 +5,11 @@
 import torch
 from torch_geometric.nn import GCNConv
 
+from torch.optim import Adam
+
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
+
 import math
 import torch.nn as nn
 import torch.nn.functional as F
@@ -12,7 +17,6 @@ import torch.nn.functional as F
 from torch.nn import Linear, Conv1d
 from torch_geometric.nn import GCNConv, global_sort_pool
 from torch_geometric.utils import dropout_adj
-from layers import attention_score
 
 import os
 import torch
@@ -36,9 +40,66 @@ torch.multiprocessing.set_sharing_strategy('file_system')
 
 import torch
 
-from torch.optim import Adam
 from torch_geometric.data import DataLoader
 from sklearn import metrics
+
+import torch
+from torch_geometric.nn import GCNConv
+
+def extract_subgraph(split_data_dict, args, k=0):
+    #if args.data_name == 'Gdataset':
+    #    print("Using Gdataset with 10% testing...")
+    #    (
+    #        adj_train, train_labels, train_u_indices, train_v_indices,
+    #        test_labels, test_u_indices, test_v_indices
+    #    ) = split_data_dict[k]
+    #
+    #elif args.data_name == 'Cdataset':
+    #
+    #    print("Using Cdataset with 10% testing...")
+    #    (
+    #        adj_train, train_labels, train_u_indices, train_v_indices,
+    #        test_labels, test_u_indices, test_v_indices
+    #    ) = split_data_dict[k]  # load_drug_data(path)
+    #
+    #else:
+    #    print("Using LRSSL with 10% testing...")
+    #    (
+    #        adj_train, train_labels, train_u_indices, train_v_indices,
+    #        test_labels, test_u_indices, test_v_indices
+    #    ) = split_data_dict[k]
+
+    (
+        adj_train, train_labels, train_u_indices, train_v_indices#,
+        #test_labels, test_u_indices, test_v_indices
+    ) = split_data_dict[k]
+
+    val_test_appendix = str(k) + '_kfold'
+    data_combo = ("a", "a") #(args.data_name, val_test_appendix)
+
+    train_indices = (train_u_indices, train_v_indices)
+    #test_indices = (test_u_indices, test_v_indices)
+
+    train_file_path = 'data/{}/{}/train'.format(*data_combo)
+    train_graph = MyDataset(train_file_path, adj_train, train_indices, train_labels, args.hop)
+    # train_graph = MyDynamicDataset(train_file_path, adj_train, train_indices, train_labels, args.hop)
+
+    #test_file_path = 'data/{}/{}/test'.format(*data_combo)
+    #test_graph = MyDataset(test_file_path, adj_train, test_indices, test_labels, args.hop)
+    # test_graph = MyDynamicDataset(test_file_path, adj_train, test_indices, test_labels, args.hop)
+
+    return train_graph#, test_graph
+
+class attention_score(torch.nn.Module):
+    def __init__(self, in_channels, Conv=GCNConv):
+        super(attention_score, self).__init__()
+        self.in_channels = in_channels
+        self.score_layer = Conv(in_channels, 1)
+
+    def forward(self, x, edge_index, edge_attr=None, batch=None):
+        score = self.score_layer(x, edge_index)
+
+        return score
 
 
 def train_multiple_epochs(train_dataset, test_dataset, model, args):
@@ -325,22 +386,24 @@ def PyGGraph_to_nx(data):
     return g
 
 
-def load_k_fold(data_name, seed):
-    root_path = os.path.dirname(os.path.abspath(__file__))
-    if data_name == 'lrssl':
-        # txt dataset
-        path = os.path.join(root_path, 'drug_data/{}'.format(data_name) + '.txt')
-        matrix = pd.read_table(path, index_col=0).values
-    elif data_name in ['Gdataset', 'Cdataset']:
-        path = os.path.join(root_path, 'drug_data/{}'.format(data_name) + '.mat')
-        # mat dataset
-        data = io.loadmat(path)
-        matrix = data['didr'].T
-    else:
-        # csv dataset
-        path = os.path.join(root_path, 'drug_data/{}'.format(data_name) + '.csv')
-        data = pd.read_csv(path, header=None)
-        matrix = data.values.T
+#def load_k_fold(data_name, seed):
+#    root_path = os.path.dirname(os.path.abspath(__file__))
+#    if data_name == 'lrssl':
+#        # txt dataset
+#        path = os.path.join(root_path, 'drug_data/{}'.format(data_name) + '.txt')
+#        matrix = pd.read_table(path, index_col=0).values
+#    elif data_name in ['Gdataset', 'Cdataset']:
+#        path = os.path.join(root_path, 'drug_data/{}'.format(data_name) + '.mat')
+#        # mat dataset
+#        data = io.loadmat(path)
+#        matrix = data['didr'].T
+#    else:
+#        # csv dataset
+#        path = os.path.join(root_path, 'drug_data/{}'.format(data_name) + '.csv')
+#        data = pd.read_csv(path, header=None)
+#        matrix = data.values.T
+
+def load_k_fold(matrix, seed):
 
     drug_num, disease_num = matrix.shape[0], matrix.shape[1]
     drug_id, disease_id = np.nonzero(matrix)
@@ -355,12 +418,12 @@ def load_k_fold(data_name, seed):
     labels = labels.reshape([-1])
 
     # number of test and validation edges
-    num_train = int(np.ceil(0.9 * len(drug_id)))
-    num_test = int(np.ceil(0.1 * len(drug_id)))
-    print("num_train {}".format(num_train),
-          "num_test {}".format(num_test))
+    #num_train = int(np.ceil(0.9 * len(drug_id)))
+    #num_test = int(np.ceil(0.1 * len(drug_id)))
+    #print("num_train {}".format(num_train),
+    #      "num_test {}".format(num_test))
 
-    print("num_train, num_test's ratio is", 0.9, 0.1)
+    #print("num_train, num_test's ratio is", 0.9, 0.1)
 
     # negative sampling
     neg_drug_idx, neg_disease_idx = np.where(matrix == 0)
@@ -376,26 +439,27 @@ def load_k_fold(data_name, seed):
 
     split_data_dict = {}
     count = 0
-    kfold = KFold(n_splits=10, shuffle=True, random_state=seed)
-    for train_data, test_data in kfold.split(pos_idx):
+    #kfold = KFold(n_splits=k, shuffle=True, random_state=seed)
+    #for train_data, test_data in kfold.split(pos_idx):
+    for train_data in [pos_idx]:
         # train dataset contains positive and negative
-        idx_pos_train = np.array(pos_idx)[np.array(train_data)]
+        idx_pos_train = np.array(pos_idx)#[np.array(train_data)]
 
         idx_neg_train = neg_idx[0:len(idx_pos_train)]  # training dataset pos:neg = 1:1
         idx_train = np.concatenate([idx_pos_train, idx_neg_train], axis=0)
 
-        pairs_pos_train = pos_pairs[np.array(train_data)]
+        pairs_pos_train = pos_pairs#[np.array(train_data)]
         pairs_neg_train = neg_pairs[0:len(pairs_pos_train)]
         pairs_train = np.concatenate([pairs_pos_train, pairs_neg_train], axis=0)
 
         # test dataset contains positive and negative
-        idx_pos_test = np.array(pos_idx)[np.array(test_data)]
-        idx_neg_test = neg_idx[len(pairs_pos_train): len(pairs_pos_train) + len(idx_pos_test) + 1]
-        idx_test = np.concatenate([idx_pos_test, idx_neg_test], axis=0)
+        #idx_pos_test = np.array(pos_idx)[np.array(test_data)]
+        #idx_neg_test = neg_idx[len(pairs_pos_train): len(pairs_pos_train) + len(idx_pos_test) + 1]
+        #idx_test = np.concatenate([idx_pos_test, idx_neg_test], axis=0)
 
-        pairs_pos_test = pos_pairs[np.array(test_data)]
-        pairs_neg_test = neg_pairs[len(pairs_pos_train): len(pairs_pos_train) + len(idx_pos_test) + 1]
-        pairs_test = np.concatenate([pairs_pos_test, pairs_neg_test], axis=0)
+        #pairs_pos_test = pos_pairs[np.array(test_data)]
+        #pairs_neg_test = neg_pairs[len(pairs_pos_train): len(pairs_pos_train) + len(idx_pos_test) + 1]
+        #pairs_test = np.concatenate([pairs_pos_test, pairs_neg_test], axis=0)
 
         # Internally shuffle training set
         rand_idx = list(range(len(idx_train)))
@@ -405,18 +469,18 @@ def load_k_fold(data_name, seed):
         pairs_train = pairs_train[rand_idx]
 
         u_train_idx, v_train_idx = pairs_train.transpose()
-        u_test_idx, v_test_idx = pairs_test.transpose()
+        #u_test_idx, v_test_idx = pairs_test.transpose()
 
         # create labels
         train_labels = labels[idx_train]
-        test_labels = labels[idx_test]
+        #test_labels = labels[idx_test]
 
         # make training adjacency matrix
         rating_mx_train = np.zeros(drug_num * disease_num, dtype=np.float32)
         rating_mx_train[idx_train] = labels[idx_train]
         rating_mx_train = ssp.csr_matrix(rating_mx_train.reshape(drug_num, disease_num))
-        split_data_dict[count] = [rating_mx_train, train_labels, u_train_idx, v_train_idx, \
-           test_labels, u_test_idx, v_test_idx]
+        split_data_dict[count] = [rating_mx_train, train_labels, u_train_idx, v_train_idx]#, \
+        #   test_labels, u_test_idx, v_test_idx]
         count += 1
 
     return split_data_dict
@@ -453,6 +517,8 @@ class PSGCN(torch.nn.Module):
 
         self.conv1d_params2 = Conv1d(conv1d_channels[0], conv1d_channels[1], conv1d_kws[1], 1)
         dense_dim = int((k - 2) / 2 + 1)
+        if (dense_dim<conv1d_kws[1]):
+            dense_dim = conv1d_kws[1]
         self.dense_dim = (dense_dim - conv1d_kws[1] + 1) * conv1d_channels[1]
         self.lin1 = Linear(self.dense_dim, 128)
         self.lin2 = Linear(128, 1)

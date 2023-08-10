@@ -48,9 +48,12 @@ class PSGCN(BasicModel):
     def model_predict_proba(self, test_graphs, n):
         test_loader = DataLoader(test_graphs, n, shuffle=False, num_workers=2)
         outs = []
-        for data in test_loader:
+        current_n = 0
+        for data in test_loader:       
             y_true = data.y.view(-1).cpu().detach().numpy()
             outs.append(self.model(data).cpu().detach().numpy())
+            current_n += outs[-1].shape[0]
+            #if (current_n>=n):
             break
         outs = np.concatenate(tuple(outs), axis=0)
         return outs
