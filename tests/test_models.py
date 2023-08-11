@@ -10,8 +10,8 @@ if __name__ == '__main__':
     # add tests to the test suite
     model_folder='../src/benchscofi/'
     all_models=[x.split(model_folder)[-1].split('.py')[0] for x in glob(model_folder+'*.py') if (x!=model_folder+'__init__.py')]
-    model_lst=all_models if (len(sys.argv)<=1) else [sys.argv[1]]
-    if (not( (len(sys.argv)>=5) and (sys.argv[4]=="unsafe") )):
+    model_lst=all_models if ((len(sys.argv)<=1) or (sys.argv[1]=="safe")) else [sys.argv[1]]
+    if ((len(sys.argv)>=2) and (sys.argv[1]=="safe")):
         model_lst=[m for m in model_lst if (m not in ["BNNR","DDA_SKF","LibMFWrapper","MBiRW","PSGCN"])] 
         ## no Octave on GitHub
     dataset='' if (len(sys.argv)<=2) else sys.argv[2]

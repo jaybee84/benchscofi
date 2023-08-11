@@ -30,7 +30,7 @@ jobs:
       - name: Test all implemented models
         working-directory: ./tests/
         run: |
-          python -m test_models
+          python -m test_models safe
       - name: Test all class prior estimation methods
         working-directory: ./tests/
         run: |
