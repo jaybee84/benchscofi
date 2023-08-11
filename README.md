@@ -31,9 +31,9 @@ FFMWrapper [8]             |  0.924        |  :no_entry:[mem]  |  1.000 (40%)  |
 VariationalWrapper [9]     |:no_entry:[err]|  :no_entry:[err]  |  0.851        |  0.851       |:no_entry:[err] | :no_entry:|
 DRRS [10]                  |:no_entry:[err]|  0.662            |  0.838        |  0.878       |:no_entry:[err] | 0.892     |
 SCPMF [11]                 |  0.853        |  0.680            |  0.548        |  0.538       |:no_entry:[err] | 0.708     |
-BNNR [12]                  |  1.000        |  0.922            |  0.949        |  0.959       |  :no_entry:    | 0.972     |
-LRSSL [13]                 |  0.127        |  0.581 (90%)      |  0.159        |  0.846       |  :no_entry:    | 0.665     |
-MBiRW [14]                 |  1.000        |  0.913            |  0.954        |  0.965       |  :no_entry:    | 0.975     |
+BNNR [12]                  |  1.000        |  0.922            |  0.949        |  0.959       |  0.990 (1%)    | 0.972     |
+LRSSL [13]                 |  0.127        |  0.581 (90%)      |  0.159        |  0.846       |  0.764 (1%)    | 0.665     |
+MBiRW [14]                 |  1.000        |  0.913            |  0.954        |  0.965       |:no_entry:[err] | 0.975     |
 LibMFWrapper [15]          |  1.000        |  0.919            |  0.892        |  0.912       |  0.923         | 0.873     |
 LogisticMF [16]            |  1.000        |  0.910            |  0.941        |  0.955       |  0.953         | 0.933     |
 PSGCN [17]                 |  0.767        |  :no_entry:[err]  |  0.802        |  0.888       |  :no_entry:    | 0.887     |
@@ -48,19 +48,19 @@ PMF [1]                    |  0.070        |  0.019            |  0.015        |
 PulearnWrapper [2]         |  N/A          |  :no_entry:       |  N/A          |  :no_entry:  |  :no_entry:    | :no_entry:|
 ALSWR [3]                  |  0.000        |  0.177            |  0.236        |  0.406       |  0.193         | 0.424     |
 FastaiCollabWrapper [4]    |  1.000        |  0.035            |  0.012        |  0.003       |  0.001         | 0.000     |
-SimplePULearning [5]       |  1.000        |  0.059 (0.4)      |:no_entry:[err]|:no_entry:[err]| 0.025 (4%)    | :no_entry:|
-SimpleBinaryClassifier [6] |  0.000        |  :no_entry:[mem]  |  0.002        |  0.005 (40%) |  0.070 (1%)    | :no_entry:|
+SimplePULearning [5]       |  1.000        |  0.059 (0.4)      |:no_entry:[err]|:no_entry:[err]| 0.025 (4%)    |:no_entry:[err]|
+SimpleBinaryClassifier [6] |  0.000        |  :no_entry:[mem]  |  0.002        |  0.005 (40%) |  0.070 (1%)    |:no_entry:[err]|
 NIMCGCN [7]                |  0.568        |  0.022            |  0.006        |  0.005       |  0.007 (60%)   | 0.014     |
 FFMWrapper [8]             |  1.000        |  :no_entry:[mem]  |  1.000 (40%)  |  1.000 (20%) |:no_entry:[mem] | :no_entry:|
 VariationalWrapper [9]     |:no_entry:[err]|  :no_entry:[err]  |  0.011        |  0.010       |:no_entry:[err] | :no_entry:|
 DRRS [10]                  |:no_entry:[err]|  0.484            |  0.301        |  0.426       |:no_entry:[err] | 0.182     |
 SCPMF [11]                 |  0.528        |  0.102            |  0.025        |  0.011       |:no_entry:[err] | 0.008     |
-BNNR [12]                  |  1.000        |  0.466            |  0.417        |  0.572       |  :no_entry:    | 0.508     |
-LRSSL [13]                 |  0.206        |  0.032 (90%)      |  0.009        |  0.004       |  :no_entry:    | 0.012     |
-MBiRW [14]                 |  1.000        |  0.085            |  0.267        |  0.352       |  :no_entry:    | 0.457     |
+BNNR [12]                  |  1.000        |  0.466            |  0.417        |  0.572       |  0.217 (1%)    | 0.508     |
+LRSSL [13]                 |  0.206        |  0.032 (90%)      |  0.009        |  0.004       |  0.103 (1%)    | 0.012     |
+MBiRW [14]                 |  1.000        |  0.085            |  0.267        |  0.352       |:no_entry:[err] | 0.457     |
 LibMFWrapper [15]          |  1.000        |  0.419            |  0.431        |  0.605       |  0.502         | 0.430     |
 LogisticMF [16]            |  1.000        |  0.323            |  0.106        |  0.101       |  0.076         | 0.078     |
-PSGCN [17]                 |  0.969        |  :no_entry:[err]  |  0.074        |  0.052       |  :no_entry:    | 0.110     |
+PSGCN [17]                 |  0.969        |  :no_entry:[err]  |  0.074        |  0.052       |:no_entry:[err] | 0.110     |
 DDA_SKF [18]               |  1.000        |  0.039            |  0.069        |  0.078 (20%) |  0.065         | 0.069     |
 HAN [19]                   |  1.000        |  0.075            |  0.007        |  0.000       |  0.001         | 0.002     |
 
