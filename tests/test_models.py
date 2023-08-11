@@ -11,7 +11,7 @@ if __name__ == '__main__':
     model_folder='../src/benchscofi/'
     all_models=[x.split(model_folder)[-1].split('.py')[0] for x in glob(model_folder+'*.py') if (x!=model_folder+'__init__.py')]
     model_lst=all_models if (len(sys.argv)<=1) else [sys.argv[1]]
-    model_lst=[m for m in model_lst if (m not in ["PulearnWrapper","VariationalWrapper","DRRS"])]
+    model_lst=[m for m in model_lst if (m not in ["BNNR","DDA_SKF","LibMFWrapper","MBiRW","PSGCN"])] ## no Octave on GitHub
     dataset='' if (len(sys.argv)<=2) else sys.argv[2]
     batch_ratio=1 if (len(sys.argv)<=3) else float(sys.argv[3])
     assert batch_ratio>0 and batch_ratio<=1
