@@ -35,12 +35,12 @@ jobs:
         working-directory: ./tests/
         run: |
           python -m test_priorestimation
-      - name: Test codecov
-        working-directory: ./
-        run: |
-          pip install codecov
-          pip install pytest-cov
-          pytest --cov=./ --cov-report=xml
-          codecov
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+#      - name: Test codecov
+#        working-directory: ./
+#        run: |
+#          pip install codecov
+#          pip install pytest-cov
+#          pytest --cov=./ --cov-report=xml
+#          codecov
+#        env:
+#          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
