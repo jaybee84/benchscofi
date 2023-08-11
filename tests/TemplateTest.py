@@ -2,11 +2,13 @@ import unittest
 import numpy as np
 import random
 from subprocess import Popen
+import gc
 
 import stanscofi.datasets
 import stanscofi.training_testing
 import stanscofi.validation
 import stanscofi.utils
+from time import time
 
 import sys ##
 sys.path.insert(0, "../src/") ##
@@ -47,8 +49,12 @@ class TestModel(unittest.TestCase):
         model = benchscofi.XXXXXX.XXXXXX()
         train_dataset = dataset.subset(train_folds)
         test_dataset = dataset.subset(test_folds)
+        fit_start = time()
         model.fit(train_dataset)
+        fit_runtime = time()-fit_start
+        predict_start = time()
         scores = model.predict_proba(test_dataset)
+        predict_runtime = time()-predict_start
         print("\n\n"+('_'*27)+"\nMODEL "+model.name)
         model.print_scores(scores)
         predictions = model.predict(scores, threshold=0)
@@ -60,6 +66,9 @@ class TestModel(unittest.TestCase):
         y_test[y_test<1] = 0
         print("(global) AUC = %.3f" % AUC(y_test, scores.toarray().ravel(), 1, 1))
         print("(global) NDCG@%d = %.3f" % (dataset.nitems, NDCGk(y_test, scores.toarray().ravel(), dataset.nitems, 1)))
+        print("Runtime (model fitting) %.3f sec." % fit_runtime)
+        print("Runtime (model prediction) %.3f sec." % predict_runtime)
         print(("_"*27)+"\n\n")
+        gc.collect()
         #from sklearn.metrics import ndcg_score, roc_auc_score
         ## if it ends without any error, it is a success

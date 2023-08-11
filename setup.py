@@ -37,6 +37,7 @@ setup(name=NAME,
         "numpy==1.19.4",
         "scikit-learn==1.2.*",
         "dgl>=1.1.1",
+        "libmf>=0.9.2",
     ],
     entry_points={},
 )

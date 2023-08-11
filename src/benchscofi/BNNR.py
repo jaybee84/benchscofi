@@ -41,10 +41,12 @@ class BNNR(BasicModel):
         if (self.scalerS is None):
             self.scalerS = CustomScaler(posinf=inf, neginf=-inf)
         S_ = self.scalerS.fit_transform(dataset.items.T.toarray().copy(), subset=None)
+        S_ = np.nan_to_num(S_, nan=0.0) ##
         X_s = S_ if (S_.shape[0]==S_.shape[1]) else np.corrcoef(S_)
         if (self.scalerP is None):
             self.scalerP = CustomScaler(posinf=inf, neginf=-inf)
         P_ = self.scalerP.fit_transform(dataset.users.T.toarray().copy(), subset=None)
+        P_ = np.nan_to_num(P_, nan=0.0) ##
         X_p = P_ if (P_.shape[0]==P_.shape[1]) else np.corrcoef(P_)
         A_sp = dataset.ratings.toarray().T # users x items
         return [X_s, X_p, A_sp]

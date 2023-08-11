@@ -34,9 +34,11 @@ class LRSSL(BasicModel):
         if (self.scalerS is None):
             self.scalerS = CustomScaler(posinf=inf, neginf=-inf)
         S_ = self.scalerS.fit_transform(dataset.items.T.toarray().copy(), subset=None)
+        S_ = np.nan_to_num(S_, nan=0.0) ##
         if (self.scalerP is None):
             self.scalerP = CustomScaler(posinf=inf, neginf=-inf)
         P_ = self.scalerP.fit_transform(dataset.users.T.toarray().copy(), subset=None)
+        P_ = np.nan_to_num(P_, nan=0.0) ##
         if (all([self.sep_feature in str(f) for f in dataset.item_features])):
             types_feature = [str(f).split(self.sep_feature)[0] for f in dataset.item_features]
             X_lst = [S_[:,np.argwhere(np.array(types_feature)==tf)].T for tf in list(set(types_feature))]

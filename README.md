@@ -1,10 +1,12 @@
 ![funding logo](https://raw.githubusercontent.com/RECeSS-EU-Project/RECeSS-EU-Project.github.io/main/assets/images/header%2BEU_rescale.jpg)
 
+[![Python Version](https://img.shields.io/badge/python-3.8-pink)](https://badge.fury.io/py/benchscofi) [![PyPI version](https://img.shields.io/pypi/v/benchscofi.svg)](https://badge.fury.io/py/benchscofi) [![Anaconda version](https://anaconda.org/recess/benchscofi/badges/version.svg)](https://anaconda.org/recess/benchscofi) [![Zenodo version](https://zenodo.org/badge/DOI/10.5281/zenodo.8038847.svg)](https://doi.org/10.5281/zenodo.8038847) ![GitHub](https://img.shields.io/github/license/recess-eu-project/benchscofi.svg) [![Build Status](https://github.com/recess-eu-project/benchscofi/actions/workflows/post-push-test.yml/badge.svg)](https://github.com/recess-eu-project/benchscofi/actions/workflows/post-push-test.yml) [![Codecov](https://codecov.io/github/recess-eu-project/benchscofi/coverage.svg?branch=master)](https://codecov.io/github/recess-eu-project/benchscofi?branch=master) [![Codefactor](https://www.codefactor.io/repository/github/recess-eu-project/benchscofi/badge?style=plastic)](https://www.codefactor.io/repository/github/recess-eu-project/benchscofi)
+
 # BENCHmark for drug Screening with COllaborative FIltering (benchscofi) Python Package
 
 This repository is a part of the EU-funded [RECeSS project](https://recess-eu-project.github.io) (#101102016), and hosts the implementations and / or wrappers to published implementations of collaborative filtering-based algorithms for easy benchmarking.
 
-## Benchmark average disease-wise and global AUC values (default parameters, single random training/testing set split) [updated 08/10/23]
+## Benchmark AUC and NDCG@items values (default parameters, single random training/testing set split) [updated 08/11/23]
 
 These values (rounded to the closest 3rd decimal place) can be reproduced using the following command
 
@@ -12,31 +14,9 @@ These values (rounded to the closest 3rd decimal place) can be reproduced using 
 cd tests/ && python3 -m test_models <algorithm> <dataset:default=Synthetic> <batch_ratio:default=1>
 ```
 
-:no_entry:'s represent failure to train or to predict. ``N/A``'s have not been tested yet. When present, ratio in parentheses is the considered value of batch_ratio (to avoid memory crash on some of the datasets).
+:no_entry:'s represent failure to train or to predict. ``N/A``'s have not been tested yet. When present, percentage in parentheses is the considered value of batch_ratio (to avoid memory crash on some of the datasets).
 [mem]: memory crash
 [err]: error
-
-  Algorithm (row-wise AUC) | Synthetic*    | TRANSCRIPT    [a] | Gottlieb [b]  | Cdataset [c] | PREDICT    [d] | LRSSL [e] | 
--------------------------- | ------------- | ----------------- | ------------- | ------------ | -------------- | --------- |
-PMF [1]                    |  0.974        |  0.549            |  0.561        |  0.555       |  0.568         | 0.546     |
-PulearnWrapper [2]         |  0.500        |  :no_entry:       |  N/A          |  :no_entry:  |  :no_entry:    | :no_entry:|
-ALSWR [3]                  |  0.755        |  0.567            |  0.582        |  0.608       |  0.501         | 0.604     |
-FastaiCollabWrapper [4]    |  0.500        |  0.493            |  0.500        |  0.500       |  0.501         | 0.500     |
-SimplePULearning [5]       |  0.500        |  0.500 (40%)      |:no_entry:[err]|  :no_entry:  |  N/A           | :no_entry:|
-SimpleBinaryClassifier [6] |  0.500        |  :no_entry:[mem]  |  0.500        |  0.500 (40%) |  :no_entry:    | :no_entry:|
-NIMCGCN [7]                |  0.500        |  0.500            |  0.500        |  0.500       |  :no_entry:    | 0.500     |
-FFMWrapper [8]             |  0.500        |  :no_entry:[mem]  |  0.500 (40%)  |  0.500 (20%) |  :no_entry:    | :no_entry:|
-VariationalWrapper [9]     |:no_entry:[err]|  :no_entry:[err]  |  0.500        |  0.500       |  :no_entry:    | :no_entry:|
-DRRS [10]                  |:no_entry:[err]|  0.542            |  0.647        |  0.685       |  :no_entry:    | 0.752     |
-SCPMF [11]                 |  0.566        |  0.576            |  0.540        |  0.523       |  :no_entry:    | 0.599     |
-BNNR [12]                  |  0.500        |  0.500            |  0.500        |  0.500       |  :no_entry:    | 0.500     |
-LRSSL [13]                 |  0.509        |  0.467 (90%)      |  0.505        |  0.500       |  :no_entry:    | 0.495     |
-MBiRW [14]                 |  0.501        |  0.495            |  0.500        |  0.500       |  :no_entry:    | 0.500     |
-LibMFWrapper [15]          |  0.500        |  0.994            |  0.951        |  0.956       |  0.975         | 0.944     |
-LogisticMF [16]            |  0.500        |  0.500            |  0.500        |  0.500       |  0.500         | 0.500     |
-PSGCN [17]                 |  0.499        |  :no_entry:[err]  |  0.529        |  0.545       |  :no_entry:    | 0.532     |
-DDA_SKF [18]               |  0.863        |  0.580            |  0.517        |  0.529 (20%) |  0.582         | 0.538     |
-HAN [19]                   |  0.500        |  0.500            |  0.500        |  0.500       |  0.500         | 0.500     |
 
   Algorithm  (global AUC)  | Synthetic*    | TRANSCRIPT    [a] | Gottlieb [b]  | Cdataset [c] | PREDICT    [d] | LRSSL [e] | 
 -------------------------- | ------------- | ----------------- | ------------- | ------------ | -------------- | --------- |
@@ -44,17 +24,17 @@ PMF [1]                    |  0.922        |  0.579            |  0.598        |
 PulearnWrapper [2]         |  1.000        |  :no_entry:       |  N/A          |  :no_entry:  |  :no_entry:    | :no_entry:|
 ALSWR [3]                  |  0.971        |  0.507            |  0.677        |  0.724       |  0.693         | 0.685     |
 FastaiCollabWrapper [4]    |  1.000        |  0.876            |  0.856        |  0.837       |  0.835         | 0.851     |
-SimplePULearning [5]       |  0.995        |  0.949 (0.4)      |:no_entry:[err]|  :no_entry:  |  :no_entry:    | :no_entry:|
-SimpleBinaryClassifier [6] |  0.876        |  :no_entry:[mem]  |  0.855        |  0.938 (40%) |  :no_entry:    | :no_entry:|
-NIMCGCN [7]                |  0.907        |  0.854            |  0.843        |  0.841       |  :no_entry:    | 0.873     |
-FFMWrapper [8]             |  0.924        |  :no_entry:[mem]  |  1.000 (40%)  |  1.000 (20%) |  :no_entry:    | :no_entry:|
-VariationalWrapper [9]     |:no_entry:[err]|  :no_entry:[err]  |  0.851        |  0.851       |  :no_entry:    | :no_entry:|
-DRRS [10]                  |:no_entry:[err]|  0.662            |  0.838        |  0.878       |  :no_entry:    | 0.892     |
-SCPMF [11]                 |  0.853        |  0.680            |  0.548        |  0.538       |  :no_entry:    | 0.708     |
+SimplePULearning [5]       |  0.995        |  0.949 (0.4)      |:no_entry:[err]|:no_entry:[err]| 0.994 (4%)    | :no_entry:|
+SimpleBinaryClassifier [6] |  0.876        |  :no_entry:[mem]  |  0.855        |  0.938 (40%) |  0.998 (1%)    | :no_entry:|
+NIMCGCN [7]                |  0.907        |  0.854            |  0.843        |  0.841       |  0.914 (60%)   | 0.873     |
+FFMWrapper [8]             |  0.924        |  :no_entry:[mem]  |  1.000 (40%)  |  1.000 (20%) |:no_entry:[mem] | :no_entry:|
+VariationalWrapper [9]     |:no_entry:[err]|  :no_entry:[err]  |  0.851        |  0.851       |:no_entry:[err] | :no_entry:|
+DRRS [10]                  |:no_entry:[err]|  0.662            |  0.838        |  0.878       |:no_entry:[err] | 0.892     |
+SCPMF [11]                 |  0.853        |  0.680            |  0.548        |  0.538       |:no_entry:[err] | 0.708     |
 BNNR [12]                  |  1.000        |  0.922            |  0.949        |  0.959       |  :no_entry:    | 0.972     |
 LRSSL [13]                 |  0.127        |  0.581 (90%)      |  0.159        |  0.846       |  :no_entry:    | 0.665     |
 MBiRW [14]                 |  1.000        |  0.913            |  0.954        |  0.965       |  :no_entry:    | 0.975     |
-LibMFWrapper [15]          |  1.000        |  0.979            |  0.954        |  0.958       |  0.970         | 0.940     |
+LibMFWrapper [15]          |  1.000        |  0.919            |  0.892        |  0.912       |  0.923         | 0.873     |
 LogisticMF [16]            |  1.000        |  0.910            |  0.941        |  0.955       |  0.953         | 0.933     |
 PSGCN [17]                 |  0.767        |  :no_entry:[err]  |  0.802        |  0.888       |  :no_entry:    | 0.887     |
 DDA_SKF [18]               |  0.779        |  0.453            |  0.544        |  0.264 (20%) |  0.591         | 0.542     |
@@ -68,21 +48,23 @@ PMF [1]                    |  0.070        |  0.019            |  0.015        |
 PulearnWrapper [2]         |  N/A          |  :no_entry:       |  N/A          |  :no_entry:  |  :no_entry:    | :no_entry:|
 ALSWR [3]                  |  0.000        |  0.177            |  0.236        |  0.406       |  0.193         | 0.424     |
 FastaiCollabWrapper [4]    |  1.000        |  0.035            |  0.012        |  0.003       |  0.001         | 0.000     |
-SimplePULearning [5]       |  1.000        |  0.059 (0.4)      |:no_entry:[err]|  :no_entry:  |  :no_entry:    | :no_entry:|
-SimpleBinaryClassifier [6] |  0.000        |  :no_entry:[mem]  |  0.002        |  0.005 (40%) |  :no_entry:    | :no_entry:|
-NIMCGCN [7]                |  0.568        |  0.022            |  0.006        |  0.005       |  :no_entry:    | 0.014     |
-FFMWrapper [8]             |  1.000        |  :no_entry:[mem]  |  1.000 (40%)  |  1.000 (20%) |  :no_entry:    | :no_entry:|
-VariationalWrapper [9]     |:no_entry:[err]|  :no_entry:[err]  |  0.011        |  0.010       |  :no_entry:    | :no_entry:|
-DRRS [10]                  |:no_entry:[err]|  0.484            |  0.301        |  0.426       |  :no_entry:    | 0.182     |
-SCPMF [11]                 |  0.528        |  0.102            |  0.025        |  0.011       |  :no_entry:    | 0.008     |
+SimplePULearning [5]       |  1.000        |  0.059 (0.4)      |:no_entry:[err]|:no_entry:[err]| 0.025 (4%)    | :no_entry:|
+SimpleBinaryClassifier [6] |  0.000        |  :no_entry:[mem]  |  0.002        |  0.005 (40%) |  0.070 (1%)    | :no_entry:|
+NIMCGCN [7]                |  0.568        |  0.022            |  0.006        |  0.005       |  0.007 (60%)   | 0.014     |
+FFMWrapper [8]             |  1.000        |  :no_entry:[mem]  |  1.000 (40%)  |  1.000 (20%) |:no_entry:[mem] | :no_entry:|
+VariationalWrapper [9]     |:no_entry:[err]|  :no_entry:[err]  |  0.011        |  0.010       |:no_entry:[err] | :no_entry:|
+DRRS [10]                  |:no_entry:[err]|  0.484            |  0.301        |  0.426       |:no_entry:[err] | 0.182     |
+SCPMF [11]                 |  0.528        |  0.102            |  0.025        |  0.011       |:no_entry:[err] | 0.008     |
 BNNR [12]                  |  1.000        |  0.466            |  0.417        |  0.572       |  :no_entry:    | 0.508     |
 LRSSL [13]                 |  0.206        |  0.032 (90%)      |  0.009        |  0.004       |  :no_entry:    | 0.012     |
 MBiRW [14]                 |  1.000        |  0.085            |  0.267        |  0.352       |  :no_entry:    | 0.457     |
-LibMFWrapper [15]          |  1.000        |  0.982            |  0.954        |  1.000       |  1.000         | 1.000     |
+LibMFWrapper [15]          |  1.000        |  0.419            |  0.431        |  0.605       |  0.502         | 0.430     |
 LogisticMF [16]            |  1.000        |  0.323            |  0.106        |  0.101       |  0.076         | 0.078     |
 PSGCN [17]                 |  0.969        |  :no_entry:[err]  |  0.074        |  0.052       |  :no_entry:    | 0.110     |
 DDA_SKF [18]               |  1.000        |  0.039            |  0.069        |  0.078 (20%) |  0.065         | 0.069     |
 HAN [19]                   |  1.000        |  0.075            |  0.007        |  0.000       |  0.001         | 0.002     |
+
+Note that results from ``LibMFWrapper'' are not reproducible, and the resulting metrics might slightly vary across iterations.
 
 *Synthetic dataset created with function ``generate_dummy_dataset`` in ``stanscofi.datasets`` and the following arguments:
 ```python
@@ -217,8 +199,6 @@ conda install -c recess benchscofi # or conda
 
 ## Example usage
 
-Further documentation can be found at [the following page](https://recess-eu-project.github.io/benchscofi) [TODO].
-
 ### 0. Environment
 
 It is strongly advised to create a virtual environment using Conda (python>=3.8)
@@ -248,7 +228,7 @@ import benchscofi
 
 - Check out notebook ``Class prior estimation.ipynb`` to see tests of the class prior estimation methods on synthetic and real-life datasets.
 
-- Check out notebook ``RankingMetrics.ipynb`` for example of training with cross-validation and evaluation of the model predictions, along with the definitions of ranking metrics present in **stanscofi**. It also runs [*libmf*](https://github.com/cjlin1/libmf/).
+- Check out notebook ``RankingMetrics.ipynb`` for example of training with cross-validation and evaluation of the model predictions, along with the definitions of ranking metrics present in **stanscofi**. 
 
 - ... the list of notebooks is growing!
 

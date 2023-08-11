@@ -29,6 +29,7 @@ class SimpleNeuralNetwork(BasicModel):
 
     def preprocessing(self, dataset, is_training=True):
         X, y, scalerS, scalerP, filter_ = preprocessing_XY(dataset, self.preprocessing_str, subset_=self.subset, filter_=self.filter, scalerS=self.scalerS, scalerP=self.scalerP, inf=2, njobs=1)
+        X = np.nan_to_num(X, nan=0.)
         self.filter = filter_
         self.scalerS = scalerS
         self.scalerP = scalerP
