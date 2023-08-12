@@ -1,6 +1,6 @@
 ![funding logo](https://raw.githubusercontent.com/RECeSS-EU-Project/RECeSS-EU-Project.github.io/main/assets/images/header%2BEU_rescale.jpg)
 
-[![Python Version](https://img.shields.io/badge/python-3.8-pink)](https://badge.fury.io/py/benchscofi) [![PyPI version](https://img.shields.io/pypi/v/benchscofi.svg)](https://badge.fury.io/py/benchscofi) [![Anaconda version](https://anaconda.org/recess/benchscofi/badges/version.svg)](https://anaconda.org/recess/benchscofi) [![Zenodo version](https://zenodo.org/badge/DOI/10.5281/zenodo.8038847.svg)](https://doi.org/10.5281/zenodo.8038847) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Build Status](https://github.com/recess-eu-project/benchscofi/actions/workflows/post-push-test.yml/badge.svg)](https://github.com/recess-eu-project/benchscofi/actions/workflows/post-push-test.yml) [![Codecov](https://codecov.io/github/recess-eu-project/benchscofi/coverage.svg?branch=master)](https://codecov.io/github/recess-eu-project/benchscofi?branch=master) [![Codefactor](https://www.codefactor.io/repository/github/recess-eu-project/benchscofi/badge?style=plastic)](https://www.codefactor.io/repository/github/recess-eu-project/benchscofi)
+[![Python Version](https://img.shields.io/badge/python-3.8-pink)](https://badge.fury.io/py/benchscofi) [![PyPI version](https://img.shields.io/pypi/v/benchscofi.svg)](https://badge.fury.io/py/benchscofi) [![Zenodo version](https://zenodo.org/badge/DOI/10.5281/zenodo.8241505.svg)](https://doi.org/10.5281/zenodo.8241505) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Build Status](https://github.com/recess-eu-project/benchscofi/actions/workflows/post-push-test.yml/badge.svg)](https://github.com/recess-eu-project/benchscofi/actions/workflows/post-push-test.yml) [![Codecov](https://codecov.io/github/recess-eu-project/benchscofi/coverage.svg?branch=master)](https://codecov.io/github/recess-eu-project/benchscofi?branch=master) [![Codefactor](https://www.codefactor.io/repository/github/recess-eu-project/benchscofi/badge?style=plastic)](https://www.codefactor.io/repository/github/recess-eu-project/benchscofi)
 
 # BENCHmark for drug Screening with COllaborative FIltering (benchscofi) Python Package
 
@@ -100,7 +100,7 @@ Tags are associated with each method.
 
 **[2]** Elkan and Noto's classifier based on SVMs (package [pulearn](https://pulearn.github.io/pulearn/) and [paper](https://cseweb.ucsd.edu/~elkan/posonly.pdf)). ``featureless``
 
-**[3]** Alternating Least Square Matrix Factorization algorithm implemented at [this page](https://ethen8181.github.io/machine-learning/recsys/2_implicit.html#Implementation). [[featureless]] 
+**[3]** Alternating Least Square Matrix Factorization algorithm implemented at [this page](https://ethen8181.github.io/machine-learning/recsys/2_implicit.html#Implementation). ``featureless``
 
 **[4]** Collaborative filtering approach *collab_learner* implemented by package [fast.ai](https://docs.fast.ai/collab.html). ``featureless``
 
@@ -128,7 +128,7 @@ Tags are associated with each method.
 
 **[16]** Johnson, C. C. (2014). Logistic matrix factorization for implicit feedback data. Advances in Neural Information Processing Systems, 27(78), 1-9. ([implementation](https://github.com/MrChrisJohnson/logistic-mf)). ``featureless``
 
-**[17]** Sun, X., Wang, B., Zhang, J., & Li, M. (2022). Partner-Specific Drug Repositioning Approach Based on Graph Convolutional Network. IEEE Journal of Biomedical and Health Informatics, 26(11), 5757-5765. ([implementation](https://github.com/bbjy/PSGCN)). [[featureless]] ``matrix_input`` 
+**[17]** Sun, X., Wang, B., Zhang, J., & Li, M. (2022). Partner-Specific Drug Repositioning Approach Based on Graph Convolutional Network. IEEE Journal of Biomedical and Health Informatics, 26(11), 5757-5765. ([implementation](https://github.com/bbjy/PSGCN)). ``featureless`` ``matrix_input`` 
 
 **[18]** Gao, C. Q., Zhou, Y. K., Xin, X. H., Min, H., & Du, P. F. (2022). DDA-SKF: Predicting Drug–Disease Associations Using Similarity Kernel Fusion. Frontiers in Pharmacology, 12, 784171. ([implementation](https://github.com/GCQ2119216031/DDA-SKF)). ``matrix_input``
 
@@ -189,12 +189,11 @@ Install [CUDA](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.
 
 ### 3. Install the latest **benchscofi** release
 
-Using ``pip`` (package hosted on PyPI) or ``conda`` (package hosted on Anaconda.org)
+Using ``pip`` (package hosted on PyPI)
 
 
 ```bash
 pip install benchscofi # using pip
-conda install -c recess benchscofi # or conda
 ```
 
 ## Example usage
@@ -206,7 +205,7 @@ It is strongly advised to create a virtual environment using Conda (python>=3.8)
 ```bash
 conda create -n benchscofi_env python=3.8.5 -y
 conda activate benchscofi_env
-python3 -m pip install benchscofi ## or use the conda command above
+python3 -m pip install benchscofi
 python3 -m pip uninstall werkzeug
 python3 -m pip install notebook>=6.5.4 markupsafe==2.0.1 ## packages for Jupyter notebook
 conda deactivate
@@ -214,7 +213,7 @@ conda activate benchscofi_env
 jupyter notebook
 ```
 
-The complete list of dependencies for *benchscofi* can be found at [requirements.txt](https://raw.githubusercontent.com/RECeSS-EU-Project/benchscofi/master/pip/requirements.txt) (pip) or [meta.yaml](https://raw.githubusercontent.com/RECeSS-EU-Project/benchscofi/master/conda/meta.yaml) (conda).
+The complete list of dependencies for *benchscofi* can be found at [requirements.txt](https://raw.githubusercontent.com/RECeSS-EU-Project/benchscofi/master/pip/requirements.txt) (pip).
 
 ### 1. Import module
 
