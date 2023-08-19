@@ -72,6 +72,7 @@ def calc_auc(scores, dataset, transpose=False):
     for user_id in user_ids:
         user_ids_i = np.argwhere(dataset.folds.col==user_id) if (transpose) else np.argwhere(dataset.folds.row==user_id)
         if (len(user_ids_i)==0):
+            #rowwise_aucs.append(0)
             n_ignored += 1
             continue
         user_truth = y_true_all[user_ids_i].ravel()
@@ -80,11 +81,14 @@ def calc_auc(scores, dataset, transpose=False):
             ## Full
             omegaplus, omegaminus = np.sum(user_truth==1), np.sum(user_truth<1)
             if (omegaplus*omegaminus==0):
-                return 0
+                #rowwise_aucs.append(0)
+                n_ignored += 1
+                continue
             num = sum([int(user_pred[j]>user_pred[jp]) for j in np.argwhere(user_truth==1) for jp in np.argwhere(user_truth<1)])
             auc = num/(omegaplus*omegaminus)
             rowwise_aucs.append(auc)
         else:
-            rowwise_aucs.append(0)
+            #rowwise_aucs.append(0)
             n_ignored += 1
+            continue
     return rowwise_aucs
