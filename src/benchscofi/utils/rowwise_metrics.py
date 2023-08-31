@@ -3,6 +3,7 @@
 import numpy as np
 
 ## https://github.com/cjlin1/libmf/tree/4e14bc7e8bd429abd1bbec2abc7c3926aaa3fb10 
+## conversion from C++ to Python
 def calc_mpr_auc(scores, dataset, transpose=False): 
     n, m = dataset.ratings.T.shape if (transpose) else dataset.ratings.shape
     nnz = dataset.ratings.data.shape[0]
@@ -62,7 +63,9 @@ def calc_mpr_auc(scores, dataset, transpose=False):
         all_u_auc.append(u_auc/(n-pos)/pos)
     return all_u_mpr, all_u_auc, np.sum(all_u_mpr)/total_pos, np.sum(all_u_auc)/total_m
 
-def calc_auc(scores, dataset, transpose=False): 
+## Using the Lin et al. formula for AUC
+## https://www.csie.ntu.edu.tw/~cjlin/papers/one-class-mf/biased-mf-sdm-with-supp.pdf
+def calc_auc(scores, dataset, transpose=False, verbose=False): 
     user_ids = np.unique(dataset.folds.col) if (transpose) else np.unique(dataset.folds.row)
     n_ignored = 0
     y_true_all = dataset.ratings.toarray()[dataset.folds.row,dataset.folds.col].ravel() 
@@ -91,4 +94,6 @@ def calc_auc(scores, dataset, transpose=False):
             #rowwise_aucs.append(0)
             n_ignored += 1
             continue
+    if (verbose):
+        print("#ignored users = %d (%d perc.)" % (n_ignored, n_ignored*100/len(user_ids)))
     return rowwise_aucs
