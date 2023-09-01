@@ -79,8 +79,8 @@ class TestUtils(unittest.TestCase):
         val_dataset = dataset.subset(val_folds, subset_name="Validation")
         model = PulearnWrapper()
         model.fit(traintest_dataset)
-        print(val_dataset.folds.data.shape)
-        print(model.model_predict_proba(**model.preprocessing(val_dataset, is_training=False)).shape)
+        print(("val_dataset_folds_data", val_dataset.folds.data.shape))
+        print(("model_preds", model.model_predict_proba(model.preprocessing(val_dataset, is_training=False)[0]).shape))
         scores_test = model.predict_proba(val_dataset).toarray().ravel()
         y_test = (val_dataset.folds.toarray()*val_dataset.ratings.toarray()).ravel()
         y_test[y_test<1] = 0
