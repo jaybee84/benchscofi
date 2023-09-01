@@ -43,7 +43,5 @@ class PulearnWrapper(BasicModel):
         self.estimator.fit(X, y)
 
     def model_predict_proba(self, X):
-        preds = self.estimator.predict_proba(X)[:,0]
-        print(("preds",preds.shape))
-        print(("classes",self.estimator.classes_))
+        preds = self.estimator.predict_proba(X)[:,np.argwhere(self.estimator.classes_==1)]
         return preds

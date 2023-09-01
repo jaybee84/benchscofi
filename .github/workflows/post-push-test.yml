@@ -27,10 +27,10 @@ jobs:
       - name: Test import benchscofi
         run: |
           python -c "import benchscofi; from glob import glob; model_folder='../../src/benchscofi/'; model_lst=[x.split(model_folder)[-1].split('.py')[0] for x in glob(model_folder+'*.py') if (x!=model_folder+'__init__.py')]; map(__import__, model_lst); print('benchscofi has been successfully installed and all models are importable in Python.')"
-      #- name: Test all implemented models
-      #  working-directory: ./tests/
-      #  run: |
-      #    python -m test_models safe
+      - name: Test all implemented models
+        working-directory: ./tests/
+        run: |
+          python -m test_models safe
       - name: Test all class prior estimation methods
         working-directory: ./tests/
         run: |
