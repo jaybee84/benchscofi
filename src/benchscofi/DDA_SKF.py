@@ -72,7 +72,7 @@ class DDA_SKF(BasicModel):
         
     ## https://raw.githubusercontent.com/GCQ2119216031/DDA-SKF/dcad0b455f2d436bafe03b03ce07394f54f075e4/src/Novel_drug_prediction.m
     def model_fit(self, S_lst, P_lst, Y, keep_ids_dr, keep_ids_di):
-        time_stamp = calendar.timegm(current_GMT)
+        time_stamp = calendar.timegm(current_GMT)+np.random.choice(range(int(1e8)), size=1)[0]
         filefolder = "DDA_SKF_%s" % time_stamp 
         call("mkdir -p %s/" % filefolder, shell=True)
         call("wget -qO %s/DDA_SKF.m 'https://raw.githubusercontent.com/GCQ2119216031/DDA-SKF/dcad0b455f2d436bafe03b03ce07394f54f075e4/src/Novel_drug_prediction.m'" % filefolder, shell=True)

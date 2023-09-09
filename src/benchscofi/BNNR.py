@@ -52,7 +52,7 @@ class BNNR(BasicModel):
         return [X_s, X_p, A_sp]
         
     def model_fit(self, X_s, X_p, A_sp):
-        time_stamp = calendar.timegm(current_GMT)
+        time_stamp = calendar.timegm(current_GMT)+np.random.choice(range(int(1e8)), size=1)[0]
         filefolder = "BNNR_%s" % time_stamp 
         call("mkdir -p %s/" % filefolder, shell=True)
         call("wget -qO %s/BNNR.m 'https://raw.githubusercontent.com/BioinformaticsCSU/BNNR/master/BNNR.m'" % filefolder, shell=True)

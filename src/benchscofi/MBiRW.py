@@ -48,7 +48,7 @@ class MBiRW(BasicModel):
         return [X_s, X_p, A_sp, np.array(dataset.item_list), np.array(dataset.user_list)] if (is_training) else [X_s, X_p, A_sp]
         
     def model_fit(self, X_s, X_p, A_sp, item_list, user_list):
-        time_stamp = calendar.timegm(current_GMT)
+        time_stamp = calendar.timegm(current_GMT)+np.random.choice(range(int(1e8)), size=1)[0]
         filefolder = "MBiRW_%s" % time_stamp 
         call("mkdir -p %s/" % filefolder, shell=True)
         repo_url = "https://raw.githubusercontent.com/bioinfomaticsCSU/MBiRW/d0487b2a43e37a7ee4026959cb052e2527611fde"

@@ -62,7 +62,7 @@ class LRSSL(BasicModel):
         return [X_lst, S_lst, Y] if (is_training) else [X_lst, dataset.folds.shape]
         
     def model_fit(self, X_lst, S_lst, Y):
-        time_stamp = calendar.timegm(current_GMT)
+        time_stamp = calendar.timegm(current_GMT)+np.random.choice(range(int(1e8)), size=1)[0]
         filefolder = "LRSSL_%s/" % time_stamp
         call("mkdir -p %s/" % filefolder, shell=True)
         L_lst = []

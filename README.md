@@ -179,7 +179,7 @@ cd /tmp
 unzip MCR_R2012b_glnxa64_installer.zip -d MCRInstaller
 cd MCRInstaller
 mkdir -p /usr/local/MATLAB/MATLAB_Compiler_Runtime/v80
-chown -R kali /usr/local/MATLAB/
+chown -R <user> /usr/local/MATLAB/
 ./install -mode silent -agreeToLicense  yes
 ```
 

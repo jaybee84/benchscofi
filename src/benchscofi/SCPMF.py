@@ -45,7 +45,7 @@ class SCPMF(BasicModel):
         return [X_s, X_p, A_sp]
         
     def model_fit(self, X_s, X_p, A_sp):
-        time_stamp = calendar.timegm(current_GMT)
+        time_stamp = calendar.timegm(current_GMT)+np.random.choice(range(int(1e8)), size=1)[0]
         filefolder = "SCPMF_%s" % time_stamp 
         call("mkdir -p %s/" % filefolder, shell=True)
         call("wget -qO %s/SCPMFDR.m 'https://raw.githubusercontent.com/luckymengmeng/SCPMF/master/SCPMFDR.m'" % filefolder, shell=True)
