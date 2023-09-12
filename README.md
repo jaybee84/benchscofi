@@ -160,11 +160,11 @@ R -q -e "print('R is installed and running.')"
 
 #### MATLAB / Octave
 
-Install MATLAB or Octave (free, with packages ``statistics`` from Octave Forge) based on your distribution, or do not use the following algorithms: ``BNNR``, ``SCPMF``, ``MBiRW``. Check if Octave is properly installed using the following command
+Install MATLAB or Octave (free, with packages ``statistics`` from Octave Forge) based on your distribution, or do not use the following algorithms: ``BNNR``, ``SCPMF``, ``MBiRW``, ``DDA_SKF``. Check if Octave is properly installed using the following command
 
 ```bash
-octave --eval "'octave is installed!'"
-octave --eval "pkg load statistics; 'octave-statistics is installed!'"
+octave --eval "'octave is installed'"
+octave --eval "pkg load statistics; 'octave-statistics is installed'"
 ```
 
 #### MATLAB compiler
@@ -172,7 +172,7 @@ octave --eval "pkg load statistics; 'octave-statistics is installed!'"
 Install a MATLAB compiler (version 2012b) as follows, or do not use algorithm ``DRRS``.
 
 ```bash
-sudo apt-get install -y libxmu-dev # libXmu.so.6 is required
+apt-get install -y libxmu-dev # libXmu.so.6 is required
 wget -O MCR_R2012b_glnxa64_installer.zip https://ssd.mathworks.com/supportfiles/MCR_Runtime/R2012b/MCR_R2012b_glnxa64_installer.zip
 mv MCR_R2012b_glnxa64_installer.zip /tmp
 cd /tmp

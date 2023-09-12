@@ -22,7 +22,7 @@ class SimpleNeuralNetwork(BasicModel):
 
     def default_parameters(self):
         params = {
-            "layers_dims": [16,32], "decision_threshold": 0.5, "preprocessing_str": "meanimputation_standardize", 
+            "layers_dims": [16,32], "preprocessing_str": "meanimputation_standardize", 
             "subset": None, "steps_per_epoch":1, "epochs":50, "random_state": 1234,
         }
         return params
