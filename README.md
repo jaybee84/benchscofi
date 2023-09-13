@@ -144,9 +144,9 @@ There is no standard pipeline to train, validate and compare collaborative filte
 
 ## Installation
 
-Platforms: Linux & Mac (developed and tested).
+**Platforms:** Linux (developed and tested).
 
-Python: 3.8.*
+**Python:** ``3.8.*``
 
 ### 1. Dependencies
 
