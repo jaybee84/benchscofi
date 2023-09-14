@@ -172,7 +172,7 @@ octave --eval "pkg load statistics; 'octave-statistics is installed'"
 Install a MATLAB compiler (version 2012b) as follows, or do not use algorithm ``DRRS``.
 
 ```bash
-apt-get install -y libxmu-dev # libXmu.so.6 is required
+apt-get install -y libxmu-dev libncurses5 # libXmu.so.6 and libncurses5 are required
 wget -O MCR_R2012b_glnxa64_installer.zip https://ssd.mathworks.com/supportfiles/MCR_Runtime/R2012b/MCR_R2012b_glnxa64_installer.zip
 mv MCR_R2012b_glnxa64_installer.zip /tmp
 cd /tmp
