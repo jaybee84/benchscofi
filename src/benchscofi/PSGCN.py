@@ -8,11 +8,11 @@ from benchscofi.implementations import PSGCNImplementation
 from scipy.sparse import csr_matrix
 import numpy as np
 import random
-from subprocess import call
+#from subprocess import call
 
-import calendar
-import time
-current_GMT = time.gmtime()
+#import calendar
+#import time
+#current_GMT = time.gmtime()
 
 class PSGCN(BasicModel):
     def __init__(self, params=None):
@@ -39,8 +39,8 @@ class PSGCN(BasicModel):
             "device": "cpu", #"cuda"
             "preprocessing_str": "meanimputation_standardize", "subset": None,
         }
-        time_stamp = calendar.timegm(current_GMT)+np.random.choice(range(int(1e8)), size=1)[0]
-        self.filefolder = "MBiRW_%s" % time_stamp 
+        #time_stamp = calendar.timegm(current_GMT)+np.random.choice(range(int(1e8)), size=1)[0]
+        #self.filefolder = "MBiRW_%s" % time_stamp 
         return params
 
     def preprocessing(self, dataset, is_training=True):
@@ -56,14 +56,14 @@ class PSGCN(BasicModel):
         vals = dataset.ratings.toarray()
         vals[vals<=0] = 0
         split_data_dict = PSGCNImplementation.load_k_fold(vals, self.seed)
-        graphs = PSGCNImplementation.extract_subgraph(split_data_dict, self, k=0, is_training=is_training)
+        graphs = PSGCNImplementation.extract_subgraph(split_data_dict, self, k=0, is_training=is_training)#,filefolder=filefolder)
         if (self.model is None):
             self.model = PSGCNImplementation.PSGCN(graphs, latent_dim=self.latent_dim, k=self.k, dropout=self.dropout, force_undirected=self.force_undirected)
         return [graphs] if (is_training) else [graphs, dataset.folds.data.shape[0], vals.shape, dataset.folds]
 
     def model_fit(self, train_graphs):
         PSGCNImplementation.train_multiple_epochs(train_graphs, train_graphs, self.model, self)
-        call("rm -rf %s/" % self.filefolder, shell=True)
+        #call("rm -rf %s/" % self.filefolder, shell=True)
         self.model.eval()
 
     def model_predict_proba(self, test_graphs, n, shp, fds):
