@@ -46,7 +46,7 @@ from sklearn import metrics
 import torch
 from torch_geometric.nn import GCNConv
 
-def extract_subgraph(split_data_dict, args, k=0):
+def extract_subgraph(split_data_dict, args, k=0, is_training=True, filefolder="data"):
     #if args.data_name == 'Gdataset':
     #    print("Using Gdataset with 10% testing...")
     #    (
@@ -75,14 +75,16 @@ def extract_subgraph(split_data_dict, args, k=0):
     ) = split_data_dict[k]
 
     val_test_appendix = str(k) + '_kfold'
-    data_combo = ("a", "a") #(args.data_name, val_test_appendix)
+    data_combo = (filefolder+"_"+("train" if (is_training) else "test"), val_test_appendix) #(args.data_name, val_test_appendix)
 
     train_indices = (train_u_indices, train_v_indices)
     #test_indices = (test_u_indices, test_v_indices)
 
-    train_file_path = 'data/{}/{}/train'.format(*data_combo)
-    train_graph = MyDataset(train_file_path, adj_train, train_indices, train_labels, args.hop)
-    # train_graph = MyDynamicDataset(train_file_path, adj_train, train_indices, train_labels, args.hop)
+    train_file_path = '{}/{}/'.format(*data_combo)
+    if (is_training):
+        train_graph = MyDataset(train_file_path, adj_train, train_indices, train_labels, args.hop)
+    else:
+        train_graph = MyDynamicDataset(train_file_path, adj_train, train_indices, train_labels, args.hop)
 
     #test_file_path = 'data/{}/{}/test'.format(*data_combo)
     #test_graph = MyDataset(test_file_path, adj_train, test_indices, test_labels, args.hop)
@@ -103,7 +105,6 @@ class attention_score(torch.nn.Module):
 
 
 def train_multiple_epochs(train_dataset, test_dataset, model, args):
-
     train_loader = DataLoader(train_dataset, args.batch_size, shuffle=True, num_workers=2)
 
     test_size = 1024  # load all test dataset
@@ -252,7 +253,8 @@ class MyDynamicDataset(Dataset):
         self.labels = labels
         self.h = h
 
-    def __len__(self):
+    #@abstractmethod
+    def len(self):# -> int:
         return len(self.links[0])
 
     def get(self, idx):
@@ -281,12 +283,13 @@ def links2subgraphs(Arow, Acol, links, labels, hop):
     start = time.time()
     pool = mp.Pool(mp.cpu_count())
     results = pool.starmap_async(
-        subgraph_extraction_labeling,
-        [
-            ((i, j), Arow, Acol, g_label)
-            for i, j, g_label in zip(links[0], links[1], labels)
-        ]
-    )
+                subgraph_extraction_labeling,
+                [
+                    ((i, j), Arow, Acol, g_label)
+                    for i, j, g_label in 
+                    zip(links[0], links[1], labels)
+                ]
+            )
     remaining = results._number_left
     pbar = tqdm(total=remaining)
     while True:
@@ -428,7 +431,7 @@ def load_k_fold(matrix, seed):
     # negative sampling
     neg_drug_idx, neg_disease_idx = np.where(matrix == 0)
     neg_pairs = np.array([[dr, di] for dr, di in zip(neg_drug_idx, neg_disease_idx)])
-    np.random.seed(6)
+    np.random.seed(seed)
     np.random.shuffle(neg_pairs)
     # neg_pairs = neg_pairs[0:num_train + num_test - 1]
     neg_idx = np.array([dr * disease_num + di for dr, di in neg_pairs])
@@ -463,7 +466,7 @@ def load_k_fold(matrix, seed):
 
         # Internally shuffle training set
         rand_idx = list(range(len(idx_train)))
-        np.random.seed(42)
+        np.random.seed(seed)
         np.random.shuffle(rand_idx)
         idx_train = idx_train[rand_idx]
         pairs_train = pairs_train[rand_idx]
