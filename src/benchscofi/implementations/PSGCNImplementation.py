@@ -81,7 +81,7 @@ def extract_subgraph(split_data_dict, args, k=0, is_training=True, filefolder="d
     #test_indices = (test_u_indices, test_v_indices)
 
     train_file_path = '{}/{}/'.format(*data_combo)
-    if (is_training):
+    if (False):#is_training):
         train_graph = MyDataset(train_file_path, adj_train, train_indices, train_labels, args.hop)
     else:
         train_graph = MyDynamicDataset(train_file_path, adj_train, train_indices, train_labels, args.hop)
