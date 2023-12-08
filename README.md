@@ -1,6 +1,6 @@
 ![funding logo](https://raw.githubusercontent.com/RECeSS-EU-Project/RECeSS-EU-Project.github.io/main/assets/images/header%2BEU_rescale.jpg)
 
-[![Python Version](https://img.shields.io/badge/python-3.8-pink)](https://badge.fury.io/py/benchscofi) [![PyPI version](https://img.shields.io/pypi/v/benchscofi.svg)](https://badge.fury.io/py/benchscofi) [![Zenodo version](https://zenodo.org/badge/DOI/10.5281/zenodo.8241505.svg)](https://doi.org/10.5281/zenodo.8241505) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Build Status](https://github.com/recess-eu-project/benchscofi/actions/workflows/post-push-test.yml/badge.svg)](https://github.com/recess-eu-project/benchscofi/actions/workflows/post-push-test.yml) [![Codecov](https://codecov.io/github/recess-eu-project/benchscofi/coverage.svg?branch=master)](https://codecov.io/github/recess-eu-project/benchscofi?branch=master) [![Codefactor](https://www.codefactor.io/repository/github/recess-eu-project/benchscofi/badge?style=plastic)](https://www.codefactor.io/repository/github/recess-eu-project/benchscofi)
+[![Python Version](https://img.shields.io/badge/python-3.8-pink)](https://badge.fury.io/py/benchscofi) [![PyPI version](https://img.shields.io/pypi/v/benchscofi.svg)](https://badge.fury.io/py/benchscofi) [![Zenodo version](https://zenodo.org/badge/DOI/10.5281/zenodo.8241505.svg)](https://doi.org/10.5281/zenodo.8241505) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Build Status](https://github.com/recess-eu-project/benchscofi/actions/workflows/post-push-test.yml/badge.svg)](https://github.com/recess-eu-project/benchscofi/actions/workflows/post-push-test.yml) [![Codecov](https://codecov.io/github/recess-eu-project/benchscofi/coverage.svg?branch=master)](https://codecov.io/github/recess-eu-project/benchscofi?branch=master) [![Codefactor](https://www.codefactor.io/repository/github/recess-eu-project/benchscofi/badge?style=plastic)](https://www.codefactor.io/repository/github/recess-eu-project/benchscofi) [![JOSS](https://joss.theoj.org/papers/8c32602b0c4b97e70c7a3bca5f3eebc0/status.svg)](https://joss.theoj.org/papers/8c32602b0c4b97e70c7a3bca5f3eebc0)
 
 # BENCHmark for drug Screening with COllaborative FIltering (benchscofi) Python Package
 
@@ -39,6 +39,8 @@ LogisticMF [16]            |  1.000        |  0.910            |  0.941        |
 PSGCN [17]                 |  0.767        |  :no_entry:[err]  |  0.802        |  0.888       |  :no_entry:    | 0.887     |
 DDA_SKF [18]               |  0.779        |  0.453            |  0.544        |  0.264 (20%) |  0.591         | 0.542     |
 HAN [19]                   |  1.000        |  0.870            |  0.909        |  0.905       |  0.904         | 0.923     |
+PUextraTrees [20] (``n_estimators=10``)    |  0.045 (50%)  |  0.325 (50%)      |  0.246 (20%) |:no_entry:[mem] | 0.309 (5%)|
+XGBoost [21] (``n_estimators=100``)        |  0.500        |  0.500 (20%)      |  0.500       |  0.500         |  0.500 (1%)       |  0.500 (60%)       |
 
 The NDCG score is computed across all diseases (global), at k=#items.
 
@@ -48,7 +50,7 @@ PMF [1]                    |  0.070        |  0.019            |  0.015        |
 PulearnWrapper [2]         |  N/A          |  :no_entry:       |  N/A          |  :no_entry:  |  :no_entry:    | :no_entry:|
 ALSWR [3]                  |  0.000        |  0.177            |  0.236        |  0.406       |  0.193         | 0.424     |
 FastaiCollabWrapper [4]    |  1.000        |  0.035            |  0.012        |  0.003       |  0.001         | 0.000     |
-SimplePULearning [5]       |  1.000        |  0.059 (0.4)      |:no_entry:[err]|:no_entry:[err]| 0.025 (4%)    |:no_entry:[err]|
+SimplePULearning [5]       |  1.000        |  0.059 (40%)      |:no_entry:[err]|:no_entry:[err]| 0.025 (4%)    |:no_entry:[err]|
 SimpleBinaryClassifier [6] |  0.000        |  :no_entry:[mem]  |  0.002        |  0.005 (40%) |  0.070 (1%)    |:no_entry:[err]|
 NIMCGCN [7]                |  0.568        |  0.022            |  0.006        |  0.005       |  0.007 (60%)   | 0.014     |
 FFMWrapper [8]             |  1.000        |  :no_entry:[mem]  |  1.000 (40%)  |  1.000 (20%) |:no_entry:[mem] | :no_entry:|
@@ -63,8 +65,12 @@ LogisticMF [16]            |  1.000        |  0.323            |  0.106        |
 PSGCN [17]                 |  0.969        |  :no_entry:[err]  |  0.074        |  0.052       |:no_entry:[err] | 0.110     |
 DDA_SKF [18]               |  1.000        |  0.039            |  0.069        |  0.078 (20%) |  0.065         | 0.069     |
 HAN [19]                   |  1.000        |  0.075            |  0.007        |  0.000       |  0.001         | 0.002     |
+PUextraTrees [20] (``n_estimators=10``)    |  0.000 (50%)  |  0.198 (50%)      |  0.162 (20%) |:no_entry:[mem] | 0.235 (5%)|
+XGBoost [21] (``n_estimators=100``)        |  0.061        |  0.000 (20%)      |  0.002       |  0.000         |  0.000 (1%)       |  0.000 (60%)      |
 
-Note that results from ``LibMFWrapper'' are not reproducible, and the resulting metrics might slightly vary across iterations.
+:no_entry: Note that results from ``LibMFWrapper'' are not reproducible, and the resulting metrics might slightly vary across iterations.
+
+:no_entry: XGBoost and SimpleBinaryClassifier do not take into account unlabeled points (they assume they are negative points).
 
 *Synthetic dataset created with function ``generate_dummy_dataset`` in ``stanscofi.datasets`` and the following arguments:
 ```python
@@ -132,7 +138,11 @@ Tags are associated with each method.
 
 **[18]** Gao, C. Q., Zhou, Y. K., Xin, X. H., Min, H., & Du, P. F. (2022). DDA-SKF: Predicting Drug–Disease Associations Using Similarity Kernel Fusion. Frontiers in Pharmacology, 12, 784171. ([implementation](https://github.com/GCQ2119216031/DDA-SKF)). ``matrix_input``
 
-**[19]** Gu, Yaowen, et al. "MilGNet: a multi-instance learning-based heterogeneous graph network for drug repositioning." 2022 IEEE International Conference on Bioinformatics and Biomedicine (BIBM). IEEE, 2022. ([implementation](https://github.com/gu-yaowen/MilGNet)). 
+**[19]** GWang, Xiao, et al. "Heterogeneous graph attention network." The world wide web conference. 2019. ([implementation](https://github.com/gu-yaowen/MilGNet)). 
+
+**[20]** Wilton, Jonathan, et al. "Positive-Unlabeled Learning using Random Forests via Recursive Greedy Risk Minimization." Advances in Neural Information Processing Systems 35 (2022): 24060-24071. ([implementation](https://github.com/jonathanwilton/PUExtraTrees)). 
+
+**[21]** Chen, Tianqi, and Carlos Guestrin. "Xgboost: A scalable tree boosting system." Proceedings of the 22nd acm sigkdd international conference on knowledge discovery and data mining. 2016. ([implementation](https://github.com/dmlc/xgboost)).
 
 ---
 

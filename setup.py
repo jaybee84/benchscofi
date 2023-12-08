@@ -38,6 +38,7 @@ setup(name=NAME,
         "scikit-learn==1.2.*",
         "dgl>=1.1.1",
         "libmf>=0.9.2",
+        "xgboost>=2.0.2",
     ],
     entry_points={},
 )
