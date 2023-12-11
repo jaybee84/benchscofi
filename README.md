@@ -206,6 +206,33 @@ Using ``pip`` (package hosted on PyPI)
 pip install benchscofi # using pip
 ```
 
+#### ISSUE: Specific Tensorflow version
+
+The requirement for ``tensorflow`` might be too restrictive. In that case, rely on the dependency conflict solver of ``pip`` (which might take a while, but will successfully solve everything) and proceed as follows:
+
+- Replace the ``install_requires`` field in file ``setup.py`` by
+
+```python
+install_requires=["stanscofi",
+	"tensorflow",
+	"pulearn",
+	"torch",
+	"fastai",
+	"torch_geometric",
+	"pyFFM",
+	"pytorch-lightning",
+	"scikit-learn==1.2.*",
+	"libmf",
+]
+```
+
+and then run the following commands:
+
+```bash
+git clone https://github.com/RECeSS-EU-Project/benchscofi.git
+python3 -m pip install .
+```
+
 ## Example usage
 
 ### 0. Environment
