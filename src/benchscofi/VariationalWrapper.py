@@ -48,7 +48,7 @@ class VariationalWrapper(BasicModel):
     def model_fit(self, X, y, N, M):
         torch.manual_seed(self.random_state)
         np.random.seed(self.random_state)
-        torch_dataset = torch.utils.data.TensorDataset(X, y)
+        torch_dataset = torch.utils.data.TensorDataset(X, (y>=1).astype(int))
         nb_samples = len(y)
         train_rmse = train_auc = train_map = 0.
         losses = []
