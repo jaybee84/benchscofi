@@ -20,13 +20,12 @@ class VariationalWrapper(BasicModel):
 
     def default_parameters(self):
         params = {
-            "LEARNING_RATE" : 1,
+            "LEARNING_RATE" : 0.001,
             "N_VARIATIONAL_SAMPLES" : 1,
-            "N_EPOCHS" : 5,
+            "N_EPOCHS" : 20,
             "DISPLAY_EPOCH_EVERY" : 5,
-            "BATCH_SIZE" : 50,
+            "BATCH_SIZE" : 250,
             "EMBEDDING_SIZE" : 3,
-            "N_VARIATIONAL_SAMPLES" : 1,
             "optimizer": "Adam",
             "random_state": 1234,
         }
@@ -36,8 +35,8 @@ class VariationalWrapper(BasicModel):
         N, M = len(dataset.user_list), len(dataset.item_list)
         ## Ratings between 0 and 1: -1 -> 0, 0 -> 0.5, 1 -> 1
         y = dataset.ratings.toarray()[dataset.folds.row, dataset.folds.col].ravel()
-        #y[y==0] = 0.5 
-        #y[y==-1] = 0.
+        y[y==0] = 0.5 
+        y[y==-1] = 0.
         X = np.asarray(np.zeros((y.shape[0], N+M)), dtype=np.float64)
         for x in range(y.shape[0]):
             X[x,dataset.folds.col[x]] = 1.
@@ -48,7 +47,7 @@ class VariationalWrapper(BasicModel):
     def model_fit(self, X, y, N, M):
         torch.manual_seed(self.random_state)
         np.random.seed(self.random_state)
-        torch_dataset = torch.utils.data.TensorDataset(X, (y>=1).astype(int))
+        torch_dataset = torch.utils.data.TensorDataset(X, y)
         nb_samples = len(y)
         train_rmse = train_auc = train_map = 0.
         losses = []
