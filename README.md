@@ -247,7 +247,9 @@ python3 -m pip uninstall werkzeug
 python3 -m pip install notebook>=6.5.4 markupsafe==2.0.1 ## packages for Jupyter notebook
 conda deactivate
 conda activate benchscofi_env
-jupyter notebook
+git clone https://github.com/RECeSS-EU-Project/benchscofi.git
+cd benchscofi/
+cd docs/ && jupyter notebook
 ```
 
 The complete list of dependencies for *benchscofi* can be found at [requirements.txt](https://raw.githubusercontent.com/RECeSS-EU-Project/benchscofi/master/pip/requirements.txt) (pip).
